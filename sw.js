@@ -1,6 +1,6 @@
 // Offline support for the STDMTRX Shanghai trip app.
 // Bump VERSION on every deploy so phones pick up the new shell.
-const VERSION = 'mtrx-2026-10-24c';
+const VERSION = 'mtrx-2026-10-24e';
 const SHELL = [
   './',
   './index.html',
@@ -17,7 +17,8 @@ const TILE_CACHE = 'mtrx-tiles';
 const NAV_TIMEOUT_MS = 3500;
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' skips the browser HTTP cache so a new VERSION really gets the new files
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -38,7 +39,8 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       const cache = await caches.open(VERSION);
       const cached = await cache.match('./index.html');
-      const net = fetch(req).then(res => {
+      // no-cache = revalidate with the server (fast 304) so itinerary edits show up right away
+      const net = fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(res => {
         if (res.ok) cache.put('./index.html', res.clone());
         return res;
       });

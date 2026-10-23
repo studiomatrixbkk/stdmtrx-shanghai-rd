@@ -14,16 +14,41 @@
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="vendor/tailwind.css" />
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-  <script src="vendor/leaflet/leaflet.js" defer></script>
   <style>
-    html { -webkit-text-size-adjust: 100%; }
+    /* manipulation = pinch-zoom still works, but double-tap no longer zooms the page */
+    html { -webkit-text-size-adjust: 100%; touch-action: manipulation; overscroll-behavior-y: contain; }
     html.big { font-size: 112.5%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "PingFang SC", "Hiragino Sans GB", sans-serif;
       background: #090d16;
       color: #f1f5f9;
       -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
     }
+    button, a, label, input, textarea, summary, [data-act] { touch-action: manipulation; }
+
+    /* Instant press feedback */
+    button, a, label, summary { transition: transform .12s ease, opacity .12s ease; }
+    button:active, a:active, label:active, summary:active { transform: scale(.97); opacity: .85; }
+
+    /* Motion: tabs fade in, sheet slides up, cards and toasts ease in */
+    @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+    @keyframes cardIn { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .tab-in { animation: tabIn .18s ease-out both; }
+    #hotel-sheet { animation: fadeIn .18s ease-out both; }
+    #hotel-sheet > div { animation: sheetUp .26s cubic-bezier(.2,.8,.2,1) both; }
+    #card-modal { animation: cardIn .2s ease-out both; }
+    #toast { animation: toastIn .2s ease-out both; }
+    #card-modal, #hotel-sheet { overscroll-behavior: contain; }
+    #dict-grid > button, #phrase-list > button { content-visibility: auto; contain-intrinsic-size: auto 96px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; }
+    }
+    .big-on { background: #fbbf24 !important; color: #020617 !important; }
     .zh { font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
     [hidden] { display: none !important; }
     #map { height: 280px; border-radius: 1rem; }
@@ -46,7 +71,7 @@
 <body class="min-h-screen text-[15px] leading-relaxed">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur border-b border-slate-800 safe-t">
+  <header class="sticky top-0 z-30 bg-slate-950 border-b border-slate-800 safe-t">
     <div class="h-12 max-w-3xl mx-auto px-4 flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0">
         <span class="shrink-0 bg-indigo-600 text-white text-xs font-black px-2 py-1 rounded-md">MTRX 上海</span>
@@ -54,7 +79,7 @@
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <span id="net-pill" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-800 text-slate-300">● ออนไลน์</span>
-        <button data-act="bigtext" aria-label="ขยายตัวอักษร" class="h-9 w-10 rounded-lg bg-slate-800 text-slate-100 font-bold text-sm">Aa</button>
+        <button id="btn-big" data-act="bigtext" aria-label="ขยายตัวอักษร" aria-pressed="false" class="h-9 w-10 rounded-lg bg-slate-800 text-slate-100 font-bold text-sm">Aa</button>
       </div>
     </div>
   </header>
@@ -69,7 +94,7 @@
   <main class="max-w-3xl mx-auto px-4 pt-4 pb-40">
 
     <!-- ===================== TAB: TODAY ===================== -->
-    <div id="tab-today" class="space-y-4">
+    <div id="tab-today" class="tab-in space-y-4">
       <div id="today-body" class="space-y-3"></div>
 
       <div>
@@ -84,7 +109,7 @@
     </div>
 
     <!-- ===================== TAB: TRIP ===================== -->
-    <div id="tab-trip" hidden class="space-y-3">
+    <div id="tab-trip" hidden class="tab-in space-y-3">
       <div id="day-chips" class="grid grid-cols-4 gap-2 sticky top-12 z-20 bg-slate-950/95 py-2 -mx-4 px-4"></div>
       <div id="day-head"></div>
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2">
@@ -95,7 +120,7 @@
     </div>
 
     <!-- ===================== TAB: CHINESE CARDS ===================== -->
-    <div id="tab-cards" hidden class="space-y-5">
+    <div id="tab-cards" hidden class="tab-in space-y-5">
       <button data-act="hotelcard" class="w-full text-left rounded-2xl bg-amber-400 text-slate-950 p-4 shadow-lg">
         <div class="text-xs font-black">🏨 แตะเพื่อโชว์คนขับ: กลับโรงแรม</div>
         <div class="zh text-2xl font-black leading-snug mt-1">和颐至尚酒店(上海火车站南广场店)</div>
@@ -115,7 +140,7 @@
     </div>
 
     <!-- ===================== TAB: TRANSLATE ===================== -->
-    <div id="tab-translate" hidden class="space-y-5">
+    <div id="tab-translate" hidden class="tab-in space-y-5">
 
       <!-- 1. Keyboard Scan Text -->
       <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 space-y-3">
@@ -194,7 +219,7 @@
     </div>
 
     <!-- ===================== TAB: INFO ===================== -->
-    <div id="tab-info" hidden class="space-y-5">
+    <div id="tab-info" hidden class="tab-in space-y-5">
 
       <section id="info-sos" class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 space-y-3">
         <h2 class="text-lg font-black text-rose-200">🆘 ฉุกเฉิน (แตะเพื่อโทร)</h2>
@@ -298,7 +323,7 @@
   <div id="toast" hidden role="status" class="toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-3 shadow-xl text-center"></div>
 
   <!-- Bottom navigation -->
-  <nav class="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur border-t border-slate-800 safe-b">
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-slate-950 border-t border-slate-800 safe-b">
     <div class="max-w-3xl mx-auto grid grid-cols-5">
       <button data-act="tab" data-tab="today" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">🏠</span>วันนี้</button>
       <button data-act="tab" data-tab="trip" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">🗺️</span>ทริป</button>
@@ -798,6 +823,7 @@
       $('card-nav').hidden = !node;
       $('card-modal').hidden = false;
       document.body.style.overflow = 'hidden';
+      buzz();
       history.pushState({ card: 1 }, '');
       try { navigator.wakeLock?.request('screen').then(l => { wakeLock = l; }).catch(() => {}); } catch (e) {}
     }
@@ -822,35 +848,82 @@
         th: 'ช่วยไปส่งพวกเรากลับโรงแรม Yitel Collection (No. 511 Tianmu West Rd.)', node: 'hotel' });
     }
 
-    let zhVoice = null;
-    function pickVoice() { try { const v = speechSynthesis.getVoices(); zhVoice = v.find(x => /^zh[-_]CN/i.test(x.lang)) || v.find(x => /^zh/i.test(x.lang)) || null; } catch (e) {} }
-    if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+    // ---------- Chinese text-to-speech ----------
+    const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const HAS_TTS = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+    let zhVoice = null, voiceCount = 0, utter = null, ttsUnlocked = false, iosHintShown = false;
+    function pickVoice() {
+      try {
+        const v = speechSynthesis.getVoices();
+        voiceCount = v.length;
+        zhVoice = v.find(x => /^zh[-_]CN/i.test(x.lang) && /Tingting|Google|Xiaoxiao|Yunxi|Huihui/i.test(x.name))
+          || v.find(x => /^zh[-_]CN/i.test(x.lang)) || v.find(x => /^zh/i.test(x.lang) && !/HK|yue/i.test(x.lang)) || null;
+      } catch (e) {}
+    }
+    if (HAS_TTS) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+    // iOS only lets a page speak after a tap; call this inside the tap so later (async) speech works
+    function unlockSpeech() {
+      if (!HAS_TTS || ttsUnlocked) return;
+      try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); ttsUnlocked = true; } catch (e) {}
+    }
+    function noSound(reason) {
+      let msg;
+      if (IS_IOS) msg = '🔇 ไม่ได้ยินเสียง? ปิดโหมดเงียบ (สวิตช์ข้างเครื่อง) แล้วเพิ่มเสียง • หรือโชว์หน้าจอให้อ่านแทน';
+      else if (voiceCount && !zhVoice) msg = '🔇 เครื่องนี้ยังไม่มีเสียงภาษาจีน: ตั้งค่า ➜ Text-to-speech ➜ ติดตั้งภาษาจีน • ตอนนี้โชว์หน้าจอให้อ่านแทนได้';
+      else msg = '🔇 พูดไม่ได้ตอนนี้ — เพิ่มเสียงสื่อ (media) หรือโชว์หน้าจอให้อ่านแทน';
+      toast(msg, false, 6500);
+    }
     function speak(text) {
-      if (!text) return;
-      if (!('speechSynthesis' in window)) { toast('⚠️ เครื่องนี้ไม่มีเสียงพูด — โชว์หน้าจอให้อ่านแทนได้เลย', false); return; }
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'zh-CN'; u.rate = 0.9;
-      if (zhVoice) u.voice = zhVoice;
-      speechSynthesis.speak(u);
+      text = (text || '').trim();
+      if (!text) { toast('ยังไม่มีข้อความภาษาจีนให้พูด', false); return; }
+      if (!HAS_TTS) { toast('⚠️ เบราว์เซอร์นี้ไม่มีเสียงพูด — เปิดใน Safari / Chrome หรือโชว์หน้าจอให้อ่านแทน', false, 5000); return; }
+      if (!zhVoice) pickVoice();
+      const busy = speechSynthesis.speaking || speechSynthesis.pending;
+      if (busy) speechSynthesis.cancel();
+      const go = () => {
+        try { speechSynthesis.resume(); } catch (e) {}
+        utter = new SpeechSynthesisUtterance(text); // kept in a variable so Chrome does not drop it mid-sentence
+        utter.lang = 'zh-CN'; utter.rate = 0.9; utter.volume = 1;
+        if (zhVoice) utter.voice = zhVoice;
+        let started = false;
+        utter.onstart = () => {
+          started = true;
+          if (IS_IOS && !iosHintShown) { iosHintShown = true; toast('🔊 กำลังพูด… ถ้าไม่ได้ยิน ให้ปิดโหมดเงียบที่สวิตช์ข้างเครื่อง', true, 3500); }
+        };
+        utter.onerror = e => { if (!['interrupted', 'canceled'].includes(e.error)) noSound(e.error); };
+        speechSynthesis.speak(utter);
+        ttsUnlocked = true;
+        setTimeout(() => { if (!started && !speechSynthesis.speaking) noSound('no-start'); }, 2500);
+      };
+      // Safari can drop an utterance queued in the same tick as cancel()
+      busy ? setTimeout(go, 120) : go();
     }
 
     // ================================================================
     // TABS
     // ================================================================
     const TABS = ['today', 'trip', 'cards', 'translate', 'info'];
-    let curTab = 'today';
+    // Tabs other than Today are rendered the first time they are opened (or when the phone is idle)
+    const LAZY = { trip: () => renderTrip(), cards: () => renderCards(), translate: () => renderDict(), info: () => { renderChecklist(); renderBookings(); } };
+    const rendered = new Set();
+    const ensureRendered = t => { if (LAZY[t] && !rendered.has(t)) { rendered.add(t); LAZY[t](); } };
+    const scrollPos = {};
+    let curTab = null;
+    const buzz = () => { try { navigator.vibrate?.(8); } catch (e) {} };
     function showTab(t) {
+      if (t === curTab) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      if (curTab) scrollPos[curTab] = window.scrollY;
       curTab = t;
+      ensureRendered(t);
       TABS.forEach(x => { $('tab-' + x).hidden = x !== t; });
       document.querySelectorAll('.navbtn').forEach(b => {
         const on = b.dataset.tab === t;
         b.className = `navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold ${on ? 'text-amber-300' : 'text-slate-400'}`;
       });
-      if (t !== 'translate') stopCamera();
+      if (t !== 'translate') { stopCamera(); stopMic(); }
       if (t === 'trip') ensureMap();
       if (t === 'today') renderToday();
-      window.scrollTo(0, 0);
+      window.scrollTo(0, scrollPos[t] || 0);
       try { history.replaceState(history.state, '', location.pathname + location.search + '#' + t); } catch (e) {}
     }
 
@@ -982,7 +1055,8 @@
           <div class="text-2xl font-black">🎉 จบทริป Shanghai R&amp;D 2026</div>
           <div class="text-slate-300">ขอบคุณทุกคน • ดูแผนทั้งหมดได้ในแท็บ 🗺️ ทริป</div></div>`);
       }
-      $('today-body').innerHTML = out.join('');
+      const html = out.join('');
+      if (html !== renderToday.last) { $('today-body').innerHTML = html; renderToday.last = html; }
       $('hdr-status').textContent = status;
     }
 
@@ -991,7 +1065,7 @@
     // ================================================================
     let activeDay = 0, map = null, markers = [], route = null, activeStop = -1;
 
-    function renderTrip() {
+    function renderTrip(animate = false) {
       const d = DAYS[activeDay];
       $('day-chips').innerHTML = DAYS.map((x, i) => `
         <button data-act="day" data-di="${i}" class="h-14 rounded-xl font-bold text-sm leading-tight ${i === activeDay ? 'text-white' : 'bg-slate-800 text-slate-300'}" style="${i === activeDay ? `background:${x.color}` : ''}">
@@ -1005,14 +1079,20 @@
         const live = s.t0 <= t && t < s.t1;
         return stopCard(s, { id: `stop-${s.si}`, hl: live, badge: live ? '● ตอนนี้' : `จุดที่ ${s.si + 1}`, links: true });
       }).join('');
-      drawMap();
+      drawMap(animate);
     }
 
     const TILE_EN = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=en&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
     const TILE_ZH = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
-    function ensureMap() {
-      if (map) { setTimeout(() => map.invalidateSize(), 120); return; }
-      if (typeof L === 'undefined') { $('map').innerHTML = '<p class="p-4 text-sm text-slate-400">แผนที่โหลดไม่ได้ตอนนี้ — ปุ่ม 🧭 นำทาง ยังใช้ได้</p>'; return; }
+    let leafletLoading = null;
+    const loadLeaflet = () => (typeof L !== 'undefined') ? Promise.resolve() : (leafletLoading ||= loadScript('vendor/leaflet/leaflet.js').catch(e => { leafletLoading = null; throw e; }));
+    async function ensureMap() {
+      if (map) { setTimeout(() => map.invalidateSize(), 60); return; }
+      try { await loadLeaflet(); } catch (e) {
+        $('map').innerHTML = '<p class="p-4 text-sm text-slate-400">แผนที่โหลดไม่ได้ตอนนี้ — ปุ่ม 🧭 นำทาง ยังใช้ได้</p>';
+        return;
+      }
+      if (map) return;
       map = L.map('map', { zoomControl: true }).setView([31.235, 121.475], 12);
       const opt = { subdomains: '1234', maxNativeZoom: 18, maxZoom: 19, crossOrigin: true, attribution: '© AutoNavi 高德地图' };
       const en = L.tileLayer(TILE_EN, opt).addTo(map);
@@ -1033,7 +1113,7 @@
       });
     }
 
-    function drawMap() {
+    function drawMap(animate = false) {
       if (!map) return;
       markers.forEach(m => map.removeLayer(m));
       if (route) map.removeLayer(route);
@@ -1045,7 +1125,8 @@
         m.on('click', () => focusStop(si, true));
         return m;
       });
-      map.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
+      if (animate) map.flyToBounds(pts, { padding: [40, 40], maxZoom: 14, duration: 0.6 });
+      else map.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
     }
 
     function focusStop(si, fromMap = false) {
@@ -1136,9 +1217,9 @@
       } catch (e) { return null; }
     }
 
-    async function runTranslate() {
+    async function runTranslate(speakOut = false) {
       const text = ($('trans-input').value || '').trim();
-      if (!text) return;
+      if (!text) { toast('พิมพ์หรือพูดข้อความก่อนกดแปล', false); return; }
       const zhIn = /[一-龥]/.test(text);
       $('trans-status').textContent = '⚡ กำลังแปล...';
       $('trans-main').textContent = ''; $('trans-sub').textContent = ''; $('trans-actions').hidden = true; trans = null;
@@ -1153,17 +1234,59 @@
       $('trans-main').className = zhIn ? 'text-2xl font-black text-emerald-300 break-words' : 'zh text-2xl font-black text-amber-300 break-words';
       $('trans-sub').textContent = zhIn ? `ภาษาจีน: ${text}` : `ภาษาไทย: ${text}`;
       $('trans-actions').hidden = false;
+      if (speakOut && !zhIn) speak(out); // Thai → Chinese: say it out loud straight away
     }
 
+    // ---------- Speech recognition (mic buttons) ----------
+    const MIC_LABEL = { 'th-TH': '🎙️ พูดไทย → จีน', 'zh-CN': '🎙️ คนจีนพูด → ไทย' };
+    let rec = null, recLang = null;
+    function setMicUI(lang) {
+      document.querySelectorAll('[data-act="mic"]').forEach(b => {
+        const on = b.dataset.lang === lang;
+        b.textContent = on ? '⏺ กำลังฟัง… แตะเพื่อหยุด' : MIC_LABEL[b.dataset.lang];
+        b.style.boxShadow = on ? '0 0 0 3px #f43f5e' : '';
+      });
+    }
+    function stopMic() { if (!rec) return; const old = rec; rec = null; recLang = null; setMicUI(null); try { old.aborted = true; old.abort(); } catch (e) {} }
     function startMic(lang) {
+      if (rec) {
+        // second tap on the same button = done talking; tapping the other button = switch language
+        const old = rec, same = recLang === lang;
+        rec = null; recLang = null; setMicUI(null);
+        try { if (same) old.stop(); else { old.aborted = true; old.abort(); } } catch (e) {}
+        if (same) return;
+      }
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { toast('ใช้ไมค์ 🎙️ บนแป้นพิมพ์มือถือพูดใส่ช่องข้อความแทนได้เลย', false, 3500); $('trans-input').focus(); return; }
-      const rec = new SR();
-      rec.lang = lang; rec.interimResults = false;
+      if (!SR) {
+        toast(IS_IOS ? 'ในแอปบนหน้าโฮมของ iPhone ใช้ไมค์นี้ไม่ได้ — แตะช่องข้อความแล้วกด 🎙️ บนแป้นพิมพ์แทน' : 'เบราว์เซอร์นี้ไม่มีระบบฟังเสียง — ใช้ 🎙️ บนแป้นพิมพ์แทน', false, 5000);
+        $('trans-input').focus();
+        return;
+      }
+      const r = new SR();
+      rec = r; recLang = lang;
+      r.lang = lang; r.interimResults = true; r.maxAlternatives = 1;
+      let heard = '';
+      setMicUI(lang);
       $('trans-status').textContent = lang === 'th-TH' ? '🎙️ กำลังฟังภาษาไทย... พูดได้เลย' : '🎙️ 请说话 (กำลังฟังภาษาจีน)...';
-      rec.onresult = e => { $('trans-input').value = e.results[0][0].transcript; runTranslate(); };
-      rec.onerror = () => { $('trans-status').textContent = '⚠️ ไมค์ใช้ไม่ได้ (เน็ตช้า/ไม่ได้อนุญาต) — ใช้ไมค์บนแป้นพิมพ์แทน'; };
-      try { rec.start(); } catch (e) { $('trans-status').textContent = '⚠️ เปิดไมค์ไม่ได้'; }
+      r.onresult = e => {
+        heard = Array.from(e.results).map(r => r[0].transcript).join('');
+        $('trans-input').value = heard;
+      };
+      r.onerror = e => {
+        const why = {
+          'not-allowed': '⚠️ ยังไม่ได้อนุญาตไมค์ — กดอนุญาตไมโครโฟนในเบราว์เซอร์ หรือใช้ 🎙️ บนแป้นพิมพ์',
+          'service-not-allowed': '⚠️ เครื่องนี้ไม่อนุญาตระบบฟังเสียง — ใช้ 🎙️ บนแป้นพิมพ์แทน',
+          'no-speech': '🤫 ไม่ได้ยินเสียง — แตะแล้วพูดใกล้ๆ อีกครั้ง',
+          'audio-capture': '⚠️ ไม่พบไมโครโฟน',
+          'network': '📴 เน็ตช้า ระบบฟังเสียงใช้ไม่ได้ — ใช้ 🎙️ บนแป้นพิมพ์แทน (ถ้าต่อ Wi-Fi จีนอยู่ให้ปิด Wi-Fi)'
+        }[e.error];
+        if (why) $('trans-status').textContent = why;
+      };
+      r.onend = () => {
+        if (rec === r) { rec = null; recLang = null; setMicUI(null); }
+        if (!r.aborted && heard.trim()) runTranslate(lang === 'th-TH');
+      };
+      try { r.start(); } catch (e) { rec = null; recLang = null; setMicUI(null); $('trans-status').textContent = '⚠️ เปิดไมค์ไม่ได้ — ใช้ 🎙️ บนแป้นพิมพ์แทน'; }
     }
 
     function renderDict() {
@@ -1338,7 +1461,11 @@
       $('net-pill').textContent = on ? '● ออนไลน์' : '● ออฟไลน์';
       $('net-pill').className = `text-xs font-bold px-2 py-1 rounded-full ${on ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`;
     }
-    const applyBig = on => document.documentElement.classList.toggle('big', !!on);
+    function applyBig(on) {
+      document.documentElement.classList.toggle('big', !!on);
+      $('btn-big').classList.toggle('big-on', !!on);
+      $('btn-big').setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
 
     // ================================================================
     // EVENTS (one delegated handler — no inline JS strings)
@@ -1355,12 +1482,12 @@
         case 'nav': navNode(el.dataset.node); break;
         case 'place': placeCard(el.dataset.node); break;
         case 'hotelcard': $('hotel-sheet').hidden = true; hotelCard(); break;
-        case 'hotelsheet': { const r = store.get('mtrx-room', ''); $('sheet-room').textContent = r ? `🔑 ห้องของฉัน: ${r}` : ''; $('hotel-sheet').hidden = false; break; }
+        case 'hotelsheet': { const r = store.get('mtrx-room', ''); $('sheet-room').textContent = r ? `🔑 ห้องของฉัน: ${r}` : ''; $('hotel-sheet').hidden = false; buzz(); break; }
         case 'closesheet': $('hotel-sheet').hidden = true; break;
         case 'copy': copyText(el.dataset.text); break;
         case 'search': openInAmap(el.dataset.q, null, null); break;
         case 'speak': speak(el.dataset.text); break;
-        case 'day': activeDay = +el.dataset.di; activeStop = -1; renderTrip(); break;
+        case 'day': activeDay = +el.dataset.di; activeStop = -1; renderTrip(true); break;
         case 'openstop': {
           activeDay = +el.dataset.di; activeStop = +el.dataset.si;
           showTab('trip'); renderTrip();
@@ -1381,13 +1508,13 @@
         case 'camstart': startCamera(); break;
         case 'camsnap': snapCamera(); break;
         case 'camstop': stopCamera(); break;
-        case 'translate': runTranslate(); break;
-        case 'mic': startMic(el.dataset.lang); break;
+        case 'translate': unlockSpeech(); runTranslate(true); break;
+        case 'mic': unlockSpeech(); startMic(el.dataset.lang); break;
         case 'speaktrans': if (trans) speak(trans.cn); break;
         case 'cardtrans': if (trans) { openCard({ label: '🗣️ คำแปล', cn: trans.cn, th: trans.th }); speak(trans.cn); } break;
         case 'copytrans': if (trans) copyText(trans.cn); break;
         case 'offline': downloadOffline(); break;
-        case 'bigtext': { const on = !document.documentElement.classList.contains('big'); applyBig(on); store.set('mtrx-big', on); break; }
+        case 'bigtext': { const on = !document.documentElement.classList.contains('big'); applyBig(on); store.set('mtrx-big', on); toast(on ? '🔠 ตัวอักษรใหญ่: เปิด (กด Aa อีกครั้งเพื่อปิด)' : '🔡 ตัวอักษรใหญ่: ปิด'); break; }
       }
     });
     document.addEventListener('change', e => {
@@ -1413,12 +1540,15 @@
       $('my-room').value = store.get('mtrx-room', '');
       const di = DAYS.findIndex(d => d.date === shDate(now()));
       activeDay = di >= 0 ? di : 0;
-      renderTrip(); renderCards(); renderDict(); renderChecklist(); renderBookings();
       const start = (location.hash || '').replace('#', '');
       showTab(TABS.includes(start) ? start : 'today');
+      // Warm up the other tabs and the map library once the first screen is on show
+      const idle = window.requestIdleCallback || (fn => setTimeout(fn, 300));
+      idle(() => { TABS.forEach(ensureRendered); loadLeaflet().catch(() => {}); });
       if (store.get('mtrx-offline', null)) $('offline-status').textContent = '✅ ดาวน์โหลดไว้แล้ว — กดอีกครั้งเพื่ออัปเดตได้';
       if (/\bLine\//i.test(navigator.userAgent)) $('line-banner').hidden = false;
-      setInterval(() => { if (curTab === 'today' && $('card-modal').hidden) renderToday(); }, 30000);
+      setInterval(() => { if (!document.hidden && curTab === 'today' && $('card-modal').hidden) renderToday(); }, 30000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && curTab === 'today') renderToday(); });
     }
     window.addEventListener('DOMContentLoaded', boot);
     if ('serviceWorker' in navigator) {
