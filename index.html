@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>MTRX Shanghai R&D 2026</title>
-  <meta name="theme-color" content="#F4F5F8" />
+  <meta name="theme-color" content="#FFF4E6" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -13,8 +13,6 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="preload" href="vendor/fonts/anuphan-thai-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="vendor/tailwind-69814562.css" />
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
   <style>
     /* Anuphan (SIL OFL, vendor/fonts/OFL-Anuphan.txt) — self-hosted so it works offline */
     @font-face { font-family: 'Anuphan'; font-style: normal; font-display: swap; font-weight: 100 700;
@@ -25,16 +23,19 @@
       unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
     :root {
-      --bg: #F4F5F8; --card: #FFFFFF; --line: #E6E8EE; --line2: #EEF0F4; --soft: #F1F3F8;
-      --ink: #15171C; --ink2: #3A3F4B; --mute: #5A6070; --dim: #C9CCD6;
-      --red: #D8392B; --red-ink: #C2311F; --red-soft: #FDECE9; --dark: #16181D;
+      --bg: #FFF4E6; --card: #FFFFFF; --line: #1B1B1F; --line2: #EFE6DA; --soft: #F6EEE3;
+      --ink: #1B1B1F; --ink2: #3A3A44; --mute: #5E5A66; --dim: #C9CCD6;
+      --red: #D8392B; --red-ink: #C2311F; --red-soft: #FFE0DA; --dark: #1B1B1F;
+      --yellow: #FFD43B; --pink: #FF8FB1; --mint: #5BE0A8; --sky: #7DB7FF; --lilac: #C3A1FF; --orange: #FFC23D;
     }
     /* manipulation = pinch-zoom still works, but double-tap no longer zooms the page */
     html { -webkit-text-size-adjust: 100%; touch-action: manipulation; overscroll-behavior-y: contain; }
     html.big { font-size: 112.5%; }
     body {
       font-family: 'Anuphan', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "PingFang SC", "Hiragino Sans GB", sans-serif;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: radial-gradient(rgba(27,27,31,.07) 1px, transparent 1.2px);
+      background-size: 18px 18px;
       color: var(--ink);
       -webkit-tap-highlight-color: transparent;
       -webkit-font-smoothing: antialiased;
@@ -43,9 +44,10 @@
     button, a, label, input, textarea, summary, [data-act] { touch-action: manipulation; }
     button { color: inherit; }
 
-    /* Instant press feedback */
-    button, a, label, summary { transition: transform .12s ease, opacity .12s ease; }
-    button:active, a:active, label:active, summary:active { transform: scale(.97); opacity: .85; }
+    /* Press feedback: outlined "pop" pieces sink into their shadow, everything else shrinks a touch */
+    button, a, label, summary { transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; }
+    button:active, a:active, label:active, summary:active { transform: scale(.97); }
+    .btn:active, .chip-btn:active, :is(.pop, .card):is(button, a):active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 
     /* Motion: tabs fade in, sheet slides up, cards and toasts ease in */
     @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -53,6 +55,9 @@
     @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
     @keyframes cardIn { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
     @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(216,57,43,.55); } 70% { box-shadow: 0 0 0 8px rgba(216,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(216,57,43,0); } }
+    @keyframes bob { 0%, 100% { transform: rotate(8deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
+    @keyframes fall { to { transform: translate3d(var(--dx, 0), 110vh, 0) rotate(720deg); } }
     .tab-in { animation: tabIn .18s ease-out both; }
     #hotel-sheet { animation: fadeIn .18s ease-out both; }
     #hotel-sheet > div { animation: sheetUp .26s cubic-bezier(.2,.8,.2,1) both; }
@@ -60,81 +65,95 @@
     #toast { animation: toastIn .2s ease-out both; }
     #card-modal, #hotel-sheet { overscroll-behavior: contain; }
     #dict-grid > button, #phrase-list > div { content-visibility: auto; contain-intrinsic-size: auto 96px; }
+    .pulse { animation: pulse 1.6s infinite; }
+    .bob { animation: bob 3s ease-in-out infinite; }
+    .confetti { position: fixed; top: -16px; z-index: 70; width: 9px; height: 14px; border-radius: 2px; border: 1.5px solid var(--ink); pointer-events: none; animation: fall linear forwards; }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+      .confetti { display: none; }
     }
 
     /* Type scale in rem so the Aa (big text) switch scales everything */
     .t11 { font-size: .6875rem; } .t13 { font-size: .8125rem; } .t15 { font-size: .9375rem; }
     .t17 { font-size: 1.0625rem; } .t19 { font-size: 1.1875rem; } .t26 { font-size: 1.625rem; line-height: 1.2; }
     .text-mute { color: var(--mute); } .text-ink2 { color: var(--ink2); } .text-dim { color: var(--dim); } .text-red { color: var(--red-ink); }
-    .h1 { margin: 0; font-size: 1.625rem; line-height: 1.2; font-weight: 700; }
+    .h1 { margin: 0; font-size: 1.75rem; line-height: 1.2; font-weight: 700; }
+    .mark { background: linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 92%, transparent 92%); padding: 0 4px; margin: 0 -4px; }
     .kicker { font-size: .8125rem; font-weight: 600; color: var(--mute); }
     .sec-title { margin: 0; font-size: 1.0625rem; font-weight: 700; }
     .tnum { font-variant-numeric: tabular-nums; }
 
-    /* Surfaces */
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; }
-    .card-dark { background: var(--dark); color: #fff; border-radius: 24px; }
-    .row-div > * + * { border-top: 1px solid var(--line2); }
+    /* Surfaces: white cards with an ink outline and a solid offset shadow */
+    .card { background: var(--card); border: 2px solid var(--ink); border-radius: 22px; box-shadow: 4px 4px 0 var(--ink); }
+    .card-dark { background: var(--dark); color: #fff; border: 2px solid var(--ink); border-radius: 22px; box-shadow: 4px 4px 0 var(--pink); }
+    .pop { border: 2px solid var(--ink); border-radius: 22px; box-shadow: 4px 4px 0 var(--ink); }
+    .row-div > * + * { border-top: 1.5px dashed #E0D4C4; }
 
     /* Buttons */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; font-size: .9375rem; font-weight: 700; line-height: 1.2; text-align: center; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--ink); font-size: .9375rem; font-weight: 700; line-height: 1.2; text-align: center; }
     .btn-red { background: var(--red); color: #fff; }
     .btn-dark { background: var(--dark); color: #fff; }
-    .btn-line { background: #fff; border: 1.5px solid #D5D9E2; color: var(--ink); }
+    .btn-line, .btn-white { background: #fff; color: var(--ink); }
     .btn-soft { background: var(--soft); color: var(--ink); }
-    .btn-redsoft { background: var(--red-soft); color: var(--red-ink); }
-    .btn-white { background: #fff; color: var(--ink); }
-    .btn-glass { background: rgba(255,255,255,.12); color: #fff; }
+    .btn-yellow { background: var(--yellow); color: var(--ink); }
+    .btn-redsoft { background: var(--red-soft); color: #9E2116; }
+    .btn-glass { background: rgba(255,255,255,.14); color: #fff; border-color: transparent; box-shadow: none; }
     .btn:disabled { opacity: .6; }
-    .icb { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; }
-    .link-red { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: .875rem; font-weight: 600; color: var(--red-ink); }
+    .icb { width: 44px; height: 44px; flex-shrink: 0; border: 2px solid var(--ink); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; }
+    .link-red { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: .875rem; font-weight: 700; color: var(--red-ink); }
 
     /* Chips, pills, bars */
     .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 12px; font-size: .8125rem; font-weight: 600; line-height: 1.35; }
     .chip-soft { background: var(--soft); color: var(--ink2); }
-    .chip-food { background: #FFF3D6; color: #7A3E00; }
-    .chip-tip { background: #EAF0FF; color: #1F4BB8; }
-    .chip-ok { background: #DDF6EC; color: #046046; }
-    .chip-warn { background: #FFF3D6; color: #7A3E00; }
-    .chip-bad { background: var(--red-soft); color: #B32A1C; }
-    .chip-btn { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-size: .875rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
-    .chip-btn.on { background: var(--dark); border-color: var(--dark); color: #fff; }
-    .pill-dark { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 12px 6px 10px; font-size: .8125rem; font-weight: 600; }
+    .chip-food { background: #FFE7A3; color: #5C3A00; }
+    .chip-tip { background: #D6E7FF; color: #123A8C; }
+    .chip-ok { background: #C4F2DD; color: #035C3F; }
+    .chip-warn { background: #FFE7A3; color: #5C3A00; }
+    .chip-bad { background: #FFD6CF; color: #9E2116; }
+    .chip-btn { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); font-size: .875rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .chip-btn.on { background: var(--yellow); }
+    .pill-dark { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 6px 12px 6px 10px; font-size: .8125rem; font-weight: 600; }
     .pill-ink { display: inline-flex; align-items: center; gap: 6px; background: var(--dark); color: #fff; border-radius: 999px; padding: 7px 12px; font-size: .8125rem; font-weight: 600; white-space: nowrap; }
+    .pill-white { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px 4px 10px; font-size: .8125rem; font-weight: 700; }
     .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .note-dark { display: flex; gap: 10px; align-items: flex-start; width: 100%; background: rgba(255,255,255,.08); border-radius: 14px; padding: 10px 12px; font-size: .875rem; line-height: 1.45; color: #EDEEF2; text-align: left; }
-    .bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+    .note { display: flex; gap: 10px; align-items: flex-start; width: 100%; background: rgba(255,255,255,.6); border: 2px solid var(--ink); border-radius: 14px; padding: 8px 12px; font-size: .875rem; font-weight: 600; line-height: 1.45; text-align: left; }
+    .bar { height: 12px; border-radius: 99px; background: #fff; border: 2px solid var(--ink); overflow: hidden; }
     .bar > i { display: block; height: 100%; border-radius: 99px; background: var(--red); }
-    .bar-dark { background: rgba(255,255,255,.14); }
+    .bar-dark { background: rgba(255,255,255,.14); border-color: transparent; }
+
+    /* Stickers: a place's emoji on a bright tile, tilted like it was stuck on */
+    .sticker { position: relative; width: 46px; height: 46px; flex-shrink: 0; border: 2px solid var(--ink); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; transform: rotate(-4deg); }
+    .sticker b { position: absolute; top: -9px; right: -9px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--ink); color: #fff; font-size: .6875rem; display: flex; align-items: center; justify-content: center; transform: rotate(4deg); }
+    .hello { display: inline-block; transform: rotate(-6deg); background: var(--red); color: #fff; border: 2px solid var(--ink); border-radius: 10px; padding: 0 8px; font-size: 1rem; line-height: 1.6; vertical-align: middle; box-shadow: 2px 2px 0 var(--ink); }
+    .av { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; color: var(--ink); }
+    .av + .av { margin-left: -8px; }
 
     /* Inputs and segmented controls */
-    .field { width: 100%; min-height: 48px; border: 1.5px solid var(--line); border-radius: 14px; padding: 0 14px; background: #FBFBFD; color: var(--ink); font-size: 1rem; outline: none; }
-    .field::placeholder { color: #6B7180; }
-    .field:focus { border-color: var(--ink); background: #fff; }
+    .field { width: 100%; min-height: 48px; border: 2px solid var(--ink); border-radius: 14px; padding: 0 14px; background: #fff; color: var(--ink); font-size: 1rem; outline: none; }
+    .field::placeholder { color: #6E6976; }
+    .field:focus { box-shadow: 3px 3px 0 var(--yellow); }
     textarea.field { padding: 12px 14px; line-height: 1.5; resize: none; }
-    .search { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 0 14px; color: var(--mute); }
+    .search { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 3px 3px 0 var(--ink); padding: 0 14px; color: var(--mute); }
     .search input { flex: 1; min-width: 0; height: 48px; border: 0; outline: none; background: transparent; font-size: .9375rem; color: var(--ink); }
-    .search input::placeholder { color: #6B7180; }
-    .seg { display: grid; gap: 4px; background: #E7E9EF; border-radius: 16px; padding: 4px; }
+    .search input::placeholder { color: #6E6976; }
+    .seg { display: grid; gap: 4px; background: #fff; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 3px 3px 0 var(--ink); padding: 4px; }
     .seg > button { min-height: 44px; border-radius: 12px; font-size: .9375rem; font-weight: 700; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .seg > button.on { background: #fff; box-shadow: 0 1px 3px rgba(21,23,28,.14); }
+    .seg > button.on { background: var(--yellow); box-shadow: inset 0 0 0 2px var(--ink); }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .no-sb { scrollbar-width: none; } .no-sb::-webkit-scrollbar { display: none; }
 
-    /* Trip list: numbered stops joined by a dashed travel line */
-    .num { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .8125rem; font-weight: 700; flex-shrink: 0; }
-    .move { display: flex; align-items: center; gap: 8px; margin-left: 29px; padding: 4px 0 4px 18px; border-left: 2px dashed #CDD2DC; min-height: 34px; font-size: .8125rem; line-height: 1.4; color: var(--mute); }
+    /* Trip list: sticker stops joined by a dashed travel line */
+    .move { display: flex; align-items: center; gap: 8px; margin-left: 40px; padding: 4px 0 4px 18px; border-left: 2px dashed var(--ink); min-height: 36px; font-size: .8125rem; font-weight: 600; line-height: 1.4; color: var(--ink2); }
 
     /* Today timeline */
     .tl { position: relative; list-style: none; margin: 0; padding: 0; }
-    .tl::before { content: ''; position: absolute; left: 67px; top: 22px; bottom: 22px; width: 2px; background: var(--line); }
+    .tl::before { content: ''; position: absolute; left: 67px; top: 22px; bottom: 22px; width: 2px; background: repeating-linear-gradient(var(--ink) 0 4px, transparent 4px 8px); }
     .tl-row { width: 100%; display: grid; grid-template-columns: 48px 20px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 44px; text-align: left; }
     .tl-time { font-size: .875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .tl-dot { position: relative; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .tl-dot.done { background: var(--line); color: var(--mute); }
-    .tl-dot.next { background: #fff; border: 2px solid #C9CDD6; }
+    .tl-dot { position: relative; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center; }
+    .tl-dot.done { background: var(--mint); color: var(--ink); }
+    .tl-dot.next { background: #fff; }
     .tl-title { display: flex; align-items: center; gap: 8px; font-size: .9375rem; line-height: 1.35; font-weight: 600; }
     .tl-time.done, .tl-title.done { color: var(--mute); font-weight: 500; }
     .tl-time.now, .tl-title.now { font-weight: 700; }
@@ -142,26 +161,27 @@
 
     /* Bottom navigation */
     .navbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 64px; font-size: .75rem; font-weight: 600; color: var(--mute); }
-    .navbtn .nb { width: 52px; height: 30px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
-    .navbtn.on { color: var(--red-ink); font-weight: 700; }
-    .navbtn.on .nb { background: var(--red-soft); }
+    .navbtn .nb { width: 52px; height: 30px; border-radius: 999px; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; }
+    .navbtn.on { color: var(--ink); font-weight: 700; }
+    .navbtn.on .nb { background: var(--yellow); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 
     i[data-ic] { display: inline-flex; font-style: normal; }
     .big-on { background: var(--dark) !important; color: #fff !important; }
     .zh { font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
     [hidden] { display: none !important; }
-    #map { height: 260px; border-radius: 18px; }
+    /* isolation keeps Leaflet's z-indexed panes under the sticky day chips */
+    #map { height: 260px; border-radius: 18px; isolation: isolate; }
     .leaflet-container { font-family: inherit; }
     .pin { display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-weight: 700; color: #fff; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(21,23,28,.35); }
     .pin-on { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(216,57,43,.3), 0 4px 12px rgba(21,23,28,.45); }
     .pin-label { background: #fff; color: var(--ink); padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 1px 4px rgba(21,23,28,.2); }
-    .card-on { outline: 3px solid var(--red); outline-offset: 2px; }
+    .card-on { outline: 3px solid var(--red); outline-offset: 3px; }
     @keyframes scanline { 0%,100% { top: 12%; } 50% { top: 84%; } }
     .laser { position: absolute; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, transparent, #34d399, transparent); box-shadow: 0 0 12px #10b981; animation: scanline 2.4s infinite ease-in-out; }
     .safe-b { padding-bottom: env(safe-area-inset-bottom); }
     .safe-t { padding-top: env(safe-area-inset-top); }
-    .topbar { background: rgba(244,245,248,.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-    .fab { bottom: calc(80px + env(safe-area-inset-bottom)); box-shadow: 0 10px 24px rgba(216,57,43,.32); }
+    .topbar { background: rgba(255,244,230,.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .fab { bottom: calc(80px + env(safe-area-inset-bottom)); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
     .toast { bottom: calc(144px + env(safe-area-inset-bottom)); }
     section, #tab-trip > div[id^="stop-"] { scroll-margin-top: 64px; }
     #stop-list > div { scroll-margin-top: 130px; }
@@ -169,16 +189,19 @@
     details > summary::-webkit-details-marker { display: none; }
     details[open] .chev-down { transform: rotate(180deg); }
   </style>
+  <!-- after the <style> block so Tailwind utilities can override the component classes above -->
+  <link rel="stylesheet" href="vendor/tailwind-12b979f6.css" />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
 </head>
 <body class="min-h-screen t15 leading-relaxed">
 
   <!-- Header -->
   <header class="topbar sticky top-0 z-30 safe-t">
     <div class="h-12 max-w-3xl mx-auto px-4 flex items-center justify-between gap-2">
-      <span class="shrink-0 bg-[#16181D] text-white text-xs font-bold px-2.5 py-1 rounded-lg">STDMTRX <span class="zh">上海</span></span>
+      <span class="shrink-0 bg-[#FFD43B] text-[#1B1B1F] border-2 border-[#1B1B1F] shadow-[2px_2px_0_#1B1B1F] -rotate-2 text-xs font-bold px-2.5 py-1 rounded-lg">STDMTRX <span class="zh">上海</span></span>
       <div class="flex items-center gap-2 shrink-0">
         <span id="net-pill" class="chip chip-soft">ออนไลน์</span>
-        <button id="btn-big" data-act="bigtext" aria-label="ขยายตัวอักษร" aria-pressed="false" class="h-9 w-10 rounded-xl bg-white border border-[#E6E8EE] font-bold text-sm">Aa</button>
+        <button id="btn-big" data-act="bigtext" aria-label="ขยายตัวอักษร" aria-pressed="false" class="h-9 w-10 rounded-xl bg-white border-2 border-[#1B1B1F] font-bold text-sm">Aa</button>
       </div>
     </div>
   </header>
@@ -199,16 +222,33 @@
 
     <!-- ===================== TAB: TODAY ===================== -->
     <div id="tab-today" class="tab-in space-y-3.5">
-      <div class="tab-head flex justify-between items-start gap-3">
-        <div class="min-w-0 space-y-1">
-          <div id="hdr-status" class="kicker">Shanghai R&amp;D Trip</div>
-          <h1 class="h1">สวัสดี ทีม STDMTRX</h1>
+      <section class="pop relative overflow-hidden bg-[#FFD43B] px-4 pt-4 pb-3">
+        <!-- Shanghai skyline doodle: Pearl Tower, Jin Mao, Shanghai Tower, SWFC -->
+        <svg aria-hidden="true" class="absolute right-3 bottom-0 w-[120px] h-[56px]" viewBox="0 0 120 56" fill="none" stroke="#1B1B1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0 55H120"/><path d="M4 55V44H14V55"/>
+          <path d="M26 2V55"/><path d="M21 55 26 36 31 55"/>
+          <circle cx="26" cy="36" r="6" fill="#FFD43B"/><circle cx="26" cy="18" r="4" fill="#FFD43B"/><circle cx="26" cy="8" r="1.5" fill="#FFD43B"/>
+          <path d="M50 55V34H52V26H54V18H55.5V10L56 4 56.5 10V18H58V26H60V34H62V55"/>
+          <path d="M71 55C72 34 74 16 79 2 81 16 84 34 86 55"/>
+          <path d="M92 55V16Q98 6 104 16V55"/><path d="M95.5 14H100.5L99.5 18H96.5Z"/>
+          <path d="M108 55V40H116V55"/>
+        </svg>
+        <div class="relative flex justify-between items-start gap-3">
+          <div class="min-w-0 space-y-1">
+            <div id="hdr-status" class="t13 font-semibold text-[#4A3B00]">Shanghai R&amp;D Trip</div>
+            <h1 class="h1">สวัสดี ทีม STDMTRX <span class="hello zh">你好!</span></h1>
+            <div id="hdr-greet" class="t15 font-semibold text-[#3A3000]"></div>
+          </div>
+          <div class="shrink-0 bg-white border-2 border-[#1B1B1F] rounded-[14px] shadow-[2px_2px_0_#1B1B1F] px-3 py-1.5 text-right">
+            <div id="clk-main" class="t17 font-bold tnum leading-tight">--:--</div>
+            <div id="clk-sub" class="t11 font-semibold text-mute whitespace-nowrap"></div>
+          </div>
         </div>
-        <div class="card shrink-0 rounded-[14px] px-3 py-2 text-right">
-          <div id="clk-main" class="t17 font-bold tnum leading-tight">--:--</div>
-          <div id="clk-sub" class="t11 font-semibold text-mute whitespace-nowrap"></div>
+        <p class="sr">ทีม: Snook, Little, Joe, Pide, Earth, Kwang</p>
+        <div class="relative flex mt-3 h-[56px] items-end pb-1" aria-hidden="true">
+          <span class="av bg-[#7DB7FF]">S</span><span class="av bg-[#FF8FB1]">L</span><span class="av bg-[#5BE0A8]">J</span><span class="av bg-[#C3A1FF]">P</span><span class="av bg-white">E</span><span class="av bg-[#FFC23D]">K</span>
         </div>
-      </div>
+      </section>
 
       <div id="today-body" class="space-y-3.5"></div>
 
@@ -230,9 +270,9 @@
     <div id="tab-trip" hidden class="tab-in space-y-3.5">
       <div class="tab-head space-y-1">
         <div class="kicker">26–29 ต.ค. 2026 · 4 วัน 3 คืน</div>
-        <h1 class="h1">แผนทริป</h1>
+        <h1 class="h1"><span class="mark">แผนทริป</span></h1>
       </div>
-      <div id="day-chips" class="grid grid-cols-4 gap-2 sticky top-12 z-20 bg-[#F4F5F8]/95 py-2 -mx-4 px-4"></div>
+      <div id="day-chips" class="grid grid-cols-4 gap-2 sticky top-12 z-20 bg-[#FFF4E6]/95 py-2 -mx-4 px-4"></div>
       <div class="card p-2">
         <div id="map"></div>
         <p class="t13 text-mute px-1 pt-2">แตะหมุดเพื่อเลื่อนไปที่จุดนั้น · ปุ่มนำทางจะเปิดแอป Amap พร้อมพิกัดจริง</p>
@@ -245,7 +285,7 @@
     <div id="tab-cards" hidden class="tab-in space-y-3.5">
       <div class="tab-head space-y-1">
         <div class="kicker">โชว์ให้คนขับหรือพนักงานดู</div>
-        <h1 class="h1">ป้ายจีน</h1>
+        <h1 class="h1"><span class="mark">ป้ายจีน</span></h1>
       </div>
       <div class="seg grid-cols-2" role="tablist" aria-label="ประเภทป้าย">
         <button data-act="cview" data-v="places" role="tab" class="on" aria-selected="true">สถานที่</button>
@@ -280,7 +320,7 @@
     <div id="tab-translate" hidden class="tab-in space-y-3.5">
       <div class="tab-head space-y-1">
         <div class="kicker">ไทย ⇄ จีน · อ่านเมนูด้วยกล้องได้</div>
-        <h1 class="h1">แปล</h1>
+        <h1 class="h1"><span class="mark">แปล</span></h1>
       </div>
       <div class="seg grid-cols-3" role="tablist" aria-label="วิธีแปล">
         <button data-act="trmode" data-v="scan" role="tab" class="on" aria-selected="true"><i data-ic="camera" data-s="18"></i>สแกน</button>
@@ -299,12 +339,12 @@
             </label>
             <button data-act="clearlive" class="btn btn-soft shrink-0">ล้าง</button>
           </div>
-          <div class="rounded-2xl bg-[#F4F5F8] p-3 space-y-2">
+          <div class="rounded-2xl border-2 border-dashed border-[#1B1B1F] bg-white p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
               <span id="scan-badge" class="chip chip-soft">รอข้อความจีน</span>
               <div class="flex gap-2 shrink-0">
                 <button data-act="speakscan" aria-label="ฟังเสียงจีน" class="icb btn-redsoft"><i data-ic="volume" data-s="20"></i></button>
-                <button data-act="copyscan" aria-label="คัดลอก" class="icb bg-white border border-[#E6E8EE]"><i data-ic="copy" data-s="20"></i></button>
+                <button data-act="copyscan" aria-label="คัดลอก" class="icb bg-white"><i data-ic="copy" data-s="20"></i></button>
               </div>
             </div>
             <div id="scan-cn" class="zh text-2xl font-bold break-words">—</div>
@@ -379,7 +419,7 @@
     <div id="tab-info" hidden class="tab-in space-y-3.5">
       <div class="tab-head space-y-1">
         <div class="kicker">ฉุกเฉิน · โรงแรม · ไฟลต์ · เช็กลิสต์</div>
-        <h1 class="h1">ข้อมูลทริป</h1>
+        <h1 class="h1"><span class="mark">ข้อมูลทริป</span></h1>
       </div>
 
       <section id="info-sos" class="card p-4 space-y-3">
@@ -390,7 +430,7 @@
           <a href="tel:119" class="btn btn-dark flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">119</span><span class="t11 font-semibold">ดับเพลิง</span></a>
           <a href="tel:122" class="btn btn-dark flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">122</span><span class="t11 font-semibold">อุบัติเหตุ</span></a>
         </div>
-        <a href="tel:+862152711555" class="flex items-center gap-3 min-h-[56px] rounded-2xl bg-[#F1F3F8] px-4 py-2">
+        <a href="tel:+862152711555" class="flex items-center gap-3 min-h-[56px] rounded-2xl bg-[#F6EEE3] px-4 py-2">
           <i data-ic="phone" data-s="20"></i>
           <span class="flex flex-col"><span class="text-sm font-bold">โทรหาโรงแรม Yitel Collection</span><span class="t13 font-semibold text-mute tnum">+86-21-5271-1555</span></span>
         </a>
@@ -416,26 +456,26 @@
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div class="rounded-[14px] bg-[#F4F5F8] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กอิน</div><div class="t15 font-bold">จ. 26 ต.ค. หลัง 15:00</div></div>
-          <div class="rounded-[14px] bg-[#F4F5F8] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กเอาต์</div><div class="t15 font-bold">พฤ. 29 ต.ค. ก่อน 12:00</div></div>
+          <div class="rounded-[14px] bg-[#F6EEE3] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กอิน</div><div class="t15 font-bold">จ. 26 ต.ค. หลัง 15:00</div></div>
+          <div class="rounded-[14px] bg-[#F6EEE3] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กเอาต์</div><div class="t15 font-bold">พฤ. 29 ต.ค. ก่อน 12:00</div></div>
         </div>
         <p class="t13 text-mute">ฝากกระเป๋าตอนเช้าได้ · โรงแรมอยู่ห่างลานใต้ของสถานีรถไฟจริง ~600 ม. ให้คนขับไปที่ "<span class="zh">天目西路511号</span>"</p>
         <div class="space-y-2">
           <div class="t13 font-bold text-mute">ผังห้อง · Superior 2-bed Room</div>
           <div class="grid grid-cols-3 gap-2">
-            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 1</div><div class="t15 font-bold leading-snug">Snook<br/>Little</div></div>
-            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 2</div><div class="t15 font-bold leading-snug">Joe<br/>Pide</div></div>
-            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 3</div><div class="t15 font-bold leading-snug">Earth<br/>Kwang</div></div>
+            <div class="pop rounded-2xl p-2.5" style="background:#7DB7FF"><div class="text-xs font-bold">ห้อง 1</div><div class="t15 font-bold leading-snug">Snook<br/>Little</div></div>
+            <div class="pop rounded-2xl p-2.5" style="background:#5BE0A8"><div class="text-xs font-bold">ห้อง 2</div><div class="t15 font-bold leading-snug">Joe<br/>Pide</div></div>
+            <div class="pop rounded-2xl p-2.5" style="background:#FF8FB1"><div class="text-xs font-bold">ห้อง 3</div><div class="t15 font-bold leading-snug">Earth<br/>Kwang</div></div>
           </div>
         </div>
         <label class="block space-y-1.5">
           <span class="t13 font-semibold text-mute">เลขห้องของฉัน (บันทึกในเครื่องนี้)</span>
           <input id="my-room" type="text" inputmode="numeric" placeholder="เช่น 1208" class="field" />
         </label>
-        <div class="grid grid-cols-3 gap-2">
-          <button data-act="nav" data-node="hotel" class="btn btn-line px-2 text-sm"><i data-ic="nav" data-s="18"></i>นำทาง</button>
-          <button data-act="hotelcard" class="btn btn-red px-2 text-sm"><i data-ic="car" data-s="18"></i>ป้ายคนขับ</button>
-          <a href="tel:+862152711555" class="btn btn-line px-2 text-sm"><i data-ic="phone" data-s="18"></i>โทร</a>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button data-act="hotelcard" class="btn btn-red col-span-2"><i data-ic="car" data-s="20"></i>โชว์ป้ายคนขับ</button>
+          <button data-act="nav" data-node="hotel" class="btn btn-line"><i data-ic="nav" data-s="18"></i>นำทาง</button>
+          <a href="tel:+862152711555" class="btn btn-line"><i data-ic="phone" data-s="18"></i>โทร</a>
         </div>
       </section>
 
@@ -507,7 +547,7 @@
   <div id="toast" hidden role="status" class="toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-2xl font-semibold px-4 py-3 shadow-xl text-center"></div>
 
   <!-- Bottom navigation -->
-  <nav aria-label="เมนูหลัก" class="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-[#E6E8EE] safe-b">
+  <nav aria-label="เมนูหลัก" class="fixed bottom-0 inset-x-0 z-40 bg-white border-t-2 border-[#1B1B1F] safe-b">
     <div class="max-w-3xl mx-auto grid grid-cols-5 px-1.5">
       <button data-act="tab" data-tab="today" class="navbtn"><span class="nb"><i data-ic="home" data-s="22"></i></span>วันนี้</button>
       <button data-act="tab" data-tab="trip" class="navbtn"><span class="nb"><i data-ic="map" data-s="22"></i></span>ทริป</button>
@@ -538,7 +578,7 @@
   <!-- Full-screen card for drivers / staff: white background, black text -->
   <div id="card-modal" hidden class="fixed inset-0 z-50 bg-white text-black flex flex-col safe-t safe-b">
     <div class="flex items-center gap-3 px-4 pt-4 pb-2">
-      <button data-act="closecard" aria-label="ปิดป้าย" class="w-12 h-12 shrink-0 rounded-2xl bg-[#F1F3F8] flex items-center justify-center"><i data-ic="close" data-s="22"></i></button>
+      <button data-act="closecard" aria-label="ปิดป้าย" class="w-12 h-12 shrink-0 rounded-2xl bg-[#F6EEE3] flex items-center justify-center"><i data-ic="close" data-s="22"></i></button>
       <span id="card-label" class="t13 font-semibold text-mute truncate"></span>
     </div>
     <div class="flex-1 overflow-y-auto px-6 py-4 flex flex-col justify-center gap-5">
@@ -596,7 +636,7 @@
     // Times are Shanghai local time (UTC+8). '25:30' = 01:30 the next morning.
     const DAYS = [
       {
-        date: '2026-10-26', dow: 'จ.', color: '#2457D6', tint: '#EAF0FF', dot: '#7EA6FF', title: 'Experiential Retail • Animatronics • MAP & ไฟริมน้ำ', lobby: null,
+        date: '2026-10-26', dow: 'จ.', color: '#2457D6', tint: '#EAF0FF', dot: '#7EA6FF', pop: '#7DB7FF', title: 'Experiential Retail • Animatronics • MAP & ไฟริมน้ำ', lobby: null,
         stops: [
           { node: 'pvg', start: '06:55', end: '08:30', title: 'ถึง PVG T2 • ผ่าน ตม. • รับกระเป๋า',
             move: '✈️ HO1358 ออก BKK 01:45 → ถึง PVG T2 06:55',
@@ -625,7 +665,7 @@
         ]
       },
       {
-        date: '2026-10-27', dow: 'อ.', color: '#8A2BD9', tint: '#F3E9FF', dot: '#C38BFF', title: 'Shanghai Disneyland • ช่วงเทศกาลฮาโลวีน', lobby: '07:30',
+        date: '2026-10-27', dow: 'อ.', color: '#8A2BD9', tint: '#F3E9FF', dot: '#C38BFF', pop: '#C3A1FF', title: 'Shanghai Disneyland • ช่วงเทศกาลฮาโลวีน', lobby: '07:30',
         stops: [
           { node: 'hotel', start: '07:30', end: '08:20', title: 'นัดล็อบบี้ ออกไป Disneyland',
             why: 'พกพาสปอร์ตตัวจริงทุกคน (ตั๋วผูกกับพาสปอร์ต) • พาวเวอร์แบงก์ • เปิดแอป Shanghai Disney Resort',
@@ -646,7 +686,7 @@
         ]
       },
       {
-        date: '2026-10-28', dow: 'พ.', color: '#B45309', tint: '#FFF3D6', dot: '#FFB020', title: 'M50 • Bvlgari Kaleidos • West Bund • ERA 2 • INS', lobby: '10:15',
+        date: '2026-10-28', dow: 'พ.', color: '#B45309', tint: '#FFF3D6', dot: '#FFB020', pop: '#FF9F43', title: 'M50 • Bvlgari Kaleidos • West Bund • ERA 2 • INS', lobby: '10:15',
         stops: [
           { node: 'm50', start: '10:30', end: '12:00', title: 'M50 Creative Park (Island6 & แกลเลอรี)',
             move: '🚶 เดินจาก รร. ~900 ม. (10–12 นาที)',
@@ -681,7 +721,7 @@
         ]
       },
       {
-        date: '2026-10-29', dow: 'พฤ.', color: '#047857', tint: '#DDF6EC', dot: '#34D399', title: 'Urban Planning 3D • Pop Mart • Fotografiska • บินกลับ', lobby: '09:00',
+        date: '2026-10-29', dow: 'พฤ.', color: '#047857', tint: '#DDF6EC', dot: '#34D399', pop: '#5BE0A8', title: 'Urban Planning 3D • Pop Mart • Fotografiska • บินกลับ', lobby: '09:00',
         stops: [
           { node: 'hotel', start: '09:00', end: '09:15', title: 'เช็กเอาต์ + ฝากกระเป๋าที่ล็อบบี้',
             why: 'ฝากกระเป๋าไว้ที่ front desk ถึง 17:15 (การ์ดคำพูดอยู่ในแท็บ ป้ายจีน > โรงแรม)' },
@@ -726,8 +766,8 @@
 
     // [icon, label, Amap search word, tile tint, icon color]
     const NEAR = [
-      ['wc', 'ห้องน้ำ', '卫生间', '#EAF0FF', '#1F4BB8'], ['bag', 'ร้านสะดวกซื้อ', '便利店', '#DDF6EC', '#047857'], ['bowl', 'ร้านอาหาร', '餐厅', '#FFF3D6', '#A04A00'],
-      ['train', 'รถไฟใต้ดิน', '地铁站', '#F3E9FF', '#7A22C4'], ['cross', 'ร้านยา', '药店', '#FDECE9', '#C2311F'], ['battery', 'พาวเวอร์แบงก์', '共享充电宝', '#F1F3F8', '#3A3F4B']
+      ['wc', 'ห้องน้ำ', '卫生间', '#7DB7FF', '#1B1B1F'], ['bag', 'ร้านสะดวกซื้อ', '便利店', '#5BE0A8', '#1B1B1F'], ['bowl', 'ร้านอาหาร', '餐厅', '#FFC23D', '#1B1B1F'],
+      ['train', 'รถไฟใต้ดิน', '地铁站', '#C3A1FF', '#1B1B1F'], ['cross', 'ร้านยา', '药店', '#FF8FB1', '#1B1B1F'], ['battery', 'พาวเวอร์แบงก์', '共享充电宝', '#FFD43B', '#1B1B1F']
     ];
 
     const PHRASE_CATS = [['didi', '🚐 DiDi & เดินทาง'], ['food', '🍜 สั่งอาหาร'], ['hotel', '🏨 โรงแรม'], ['sos', '🆘 ห้องน้ำ & ฉุกเฉิน']];
@@ -1173,32 +1213,32 @@
     const addrText = n => n.addr ? n.cn + ' ' + n.addr : n.cn;
     function foodRow(s, dark = false) {
       return `
-        <div class="flex items-center justify-between gap-2 rounded-[14px] px-3 py-2 ${dark ? 'bg-white/10 text-[#EDEEF2]' : 'bg-[#FFF3D6] text-[#7A3E00]'}">
+        <div class="flex items-center justify-between gap-2 rounded-[14px] px-3 py-2 ${dark ? 'bg-white/60 border-2 border-[#1B1B1F]' : 'bg-[#FFE7A3] text-[#5C3A00]'}">
           <span class="flex items-start gap-2 text-sm font-semibold">${ic('food', 16)}<span>${esc(s.food.th)}</span></span>
-          <button data-act="search" data-q="${esc(s.food.cn)}" class="shrink-0 min-h-[40px] px-3 rounded-[10px] text-sm font-bold ${dark ? 'bg-white/15 text-white' : 'bg-white text-[#7A3E00]'}">หาร้าน</button>
+          <button data-act="search" data-q="${esc(s.food.cn)}" class="shrink-0 min-h-[40px] px-3 rounded-[10px] border-2 border-[#1B1B1F] bg-white text-sm font-bold text-[#1B1B1F]">หาร้าน</button>
         </div>`;
     }
     function stopActions(s, dark = false) {
       const n = NODES[s.node];
       return `
         <div class="grid grid-cols-[1fr_1fr_48px] gap-2">
-          <button data-act="place" data-node="${s.node}" class="btn ${dark ? 'btn-white' : 'btn-red'} px-2">${ic('car', 18)}ป้ายคนขับ</button>
-          <button data-act="nav" data-node="${s.node}" class="btn ${dark ? 'btn-glass' : 'btn-line'} px-2">${ic('nav', 18)}นำทาง</button>
-          <button data-act="copy" data-text="${esc(addrText(n))}" aria-label="คัดลอกชื่อและที่อยู่ภาษาจีน" class="btn ${dark ? 'btn-glass' : 'btn-line'} px-0">${ic('copy', 18)}</button>
+          <button data-act="place" data-node="${s.node}" class="btn btn-red px-2">${ic('car', 18)}ป้ายคนขับ</button>
+          <button data-act="nav" data-node="${s.node}" class="btn btn-white px-2">${ic('nav', 18)}นำทาง</button>
+          <button data-act="copy" data-text="${esc(addrText(n))}" aria-label="คัดลอกชื่อและที่อยู่ภาษาจีน" class="btn btn-white px-0">${ic('copy', 18)}</button>
         </div>`;
     }
     function stopCard(s, opts = {}) {
       const n = NODES[s.node];
       const day = DAYS[s.di];
       return `
-        <div class="card p-4 space-y-3" ${opts.live ? `style="box-shadow:0 0 0 2px ${day.color}"` : ''}>
+        <div class="card p-4 space-y-3" ${opts.live ? `style="box-shadow:4px 4px 0 ${day.color}"` : ''}>
           ${opts.kicker ? `
             <div class="flex items-center justify-between gap-2">
               <span class="t13 font-bold" style="color:${day.color}">${opts.kicker}</span>
               ${opts.note ? `<span class="t13 font-semibold text-mute">${opts.note}</span>` : ''}
             </div>` : ''}
-          <div class="flex gap-3 items-start">
-            ${opts.num ? `<span class="num" style="background:${isBase(s.node) ? '#16181D' : day.color}">${s.si + 1}</span>` : ''}
+          <div class="flex gap-3.5 items-start">
+            <span class="sticker" style="background:${isBase(s.node) ? '#fff' : day.pop}" aria-hidden="true">${n.icon}${opts.num ? `<b>${s.si + 1}</b>` : ''}</span>
             <div class="min-w-0 flex-1 space-y-0.5">
               ${opts.kicker ? '' : `<div class="flex items-center gap-2"><span class="t13 font-bold tnum" style="color:${day.color}">${hm(s.start)}–${hm(s.end)}</span>${opts.live ? `<span class="tl-now" style="color:${day.color};background:${day.tint}">ตอนนี้</span>` : ''}</div>`}
               <h3 class="t17 font-bold leading-snug">${esc(s.title)}</h3>
@@ -1207,7 +1247,7 @@
             </div>
           </div>
           ${opts.move && s.move ? `<div class="flex"><span class="chip chip-soft">${ic(moveIcon(s.move), 16)}${esc(noEmo(s.move))}</span></div>` : ''}
-          ${s.tip ? `<div class="flex gap-2 items-start rounded-[14px] bg-[#EAF0FF] text-[#1F4BB8] px-3 py-2 text-sm font-semibold">${ic('bulb', 16)}<span>${esc(s.tip)}</span></div>` : ''}
+          ${s.tip ? `<div class="flex gap-2 items-start rounded-[14px] bg-[#D6E7FF] text-[#123A8C] px-3 py-2 text-sm font-semibold">${ic('bulb', 16)}<span>${esc(s.tip)}</span></div>` : ''}
           ${s.food ? foodRow(s) : ''}
           ${stopActions(s)}
           ${n.links && opts.links ? `<div class="flex flex-wrap gap-x-4">${n.links.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="link-red">${esc(l)}${ic('ext', 14)}</a>`).join('')}</div>` : ''}
@@ -1221,21 +1261,19 @@
       const n = NODES[s.node], d = DAYS[s.di];
       const p = Math.max(0, Math.min(100, Math.round((t - s.t0) / (s.t1 - s.t0) * 100)));
       return `
-        <div class="card-dark p-5 space-y-3.5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="pill-dark"><span class="dot" style="background:${d.dot}"></span>ตอนนี้ · Day ${s.di + 1}</span>
-            <span class="text-sm font-semibold text-dim tnum">${hm(s.start)}–${hm(s.end)}</span>
-          </div>
+        <div class="pop relative p-5 pt-4 space-y-3.5" style="background:${d.pop}">
+          <span class="sticker bob absolute -top-4 right-4 w-[60px] h-[60px] text-[32px] bg-white" aria-hidden="true">${n.icon}</span>
+          <span class="pill-white"><span class="dot pulse bg-[#D8392B]"></span>ตอนนี้ · ${hm(s.start)}–${hm(s.end)}</span>
           <div class="space-y-1">
             <h2 class="t26 font-bold">${esc(s.title)}</h2>
-            <div class="zh text-base text-dim">${esc(n.cn)}</div>
-            ${s.why ? `<p class="t15 text-[#DADCE3] pt-1">${esc(s.why)}</p>` : ''}
+            <div class="zh text-base font-semibold text-ink2">${esc(n.cn)}</div>
+            ${s.why ? `<p class="t15 text-ink2 pt-1">${esc(s.why)}</p>` : ''}
           </div>
-          <div class="space-y-2">
-            <div class="bar bar-dark"><i style="width:${p}%;background:${d.dot}"></i></div>
-            <div class="flex justify-between gap-2 t13 text-dim"><span>อยู่มาแล้ว ${dur(t - s.t0)}</span><span class="font-bold text-white">เหลือ ${dur(s.t1 - t)}</span></div>
+          <div class="space-y-1.5">
+            <div class="bar"><i style="width:${p}%;background:#1B1B1F"></i></div>
+            <div class="flex justify-between gap-2 t13 font-semibold"><span>อยู่มาแล้ว ${dur(t - s.t0)}</span><span class="font-bold">เหลือ ${dur(s.t1 - t)}</span></div>
           </div>
-          ${s.tip ? `<div class="note-dark">${ic('bulb', 18)}<span>${esc(s.tip)}</span></div>` : ''}
+          ${s.tip ? `<div class="note">${ic('bulb', 18)}<span>${esc(s.tip)}</span></div>` : ''}
           ${s.food ? foodRow(s, true) : ''}
           ${stopActions(s, true)}
         </div>`;
@@ -1246,11 +1284,11 @@
       const rows = ALL.filter(s => s.di === di).map(s => {
         const st = s === cur ? 'now' : s.t1 <= t ? 'done' : 'next';
         const dot = st === 'now'
-          ? `<span class="tl-dot" style="background:${d.color};box-shadow:0 0 0 4px ${d.tint}"></span>`
+          ? `<span class="tl-dot pulse" style="background:${d.pop}"></span>`
           : `<span class="tl-dot ${st}">${st === 'done' ? ic('check', 12) : ''}</span>`;
         return `<li><button data-act="openstop" data-di="${s.di}" data-si="${s.si}" class="tl-row">
           <span class="tl-time ${st}">${hm(s.start)}</span>${dot}
-          <span class="tl-title ${st}"><span>${esc(s.title)}</span>${st === 'now' ? `<span class="tl-now" style="color:${d.color};background:${d.tint}">ตอนนี้</span>` : ''}</span>
+          <span class="tl-title ${st}"><span>${esc(s.title)}</span>${st === 'now' ? `<span class="tl-now bg-[#1B1B1F] text-white">ตอนนี้</span>` : ''}</span>
         </button></li>`;
       }).join('');
       return `
@@ -1267,20 +1305,21 @@
       const m = Math.max(0, Math.floor(ms / 60000));
       const parts = [[Math.floor(m / 1440), 'วัน'], [Math.floor((m % 1440) / 60), 'ชั่วโมง'], [m % 60, 'นาที']];
       return `<div class="grid grid-cols-3 gap-2">${parts.map(([v, l]) => `
-        <div class="rounded-2xl bg-white/10 py-3 flex flex-col items-center"><span class="text-4xl font-bold leading-tight tnum">${v}</span><span class="t13 text-dim">${l}</span></div>`).join('')}</div>`;
+        <div class="rounded-2xl bg-[#FFD43B] text-[#1B1B1F] border-2 border-[#1B1B1F] py-3 flex flex-col items-center"><span class="text-4xl font-bold leading-tight tnum">${v}</span><span class="t13 font-semibold">${l}</span></div>`).join('')}</div>`;
     }
 
     const dayGrid = () => `
       <div class="grid grid-cols-2 gap-2.5">${DAYS.map((d, i) => `
-        <button data-act="openday" data-di="${i}" class="rounded-[20px] p-3.5 text-left flex flex-col gap-1 min-h-[96px]" style="background:${d.tint}">
-          <span class="text-xs font-bold" style="color:${d.color}">DAY ${i + 1} · ${d.dow} ${+d.date.slice(8)}</span>
+        <button data-act="openday" data-di="${i}" class="pop rounded-[20px] p-3.5 text-left flex flex-col gap-1.5 min-h-[96px]" style="background:${d.pop}">
+          <span class="text-xs font-bold">DAY ${i + 1} · ${d.dow} ${+d.date.slice(8)}</span>
+          <span class="text-xl leading-none tracking-[2px]" aria-hidden="true">${[...new Set(d.stops.map(s => NODES[s.node].icon))].slice(0, 6).join('')}</span>
           <span class="t15 font-bold leading-snug">${esc(d.title)}</span>
         </button>`).join('')}
       </div>`;
 
     function pickupBanner(t) {
       return `
-        <div class="rounded-3xl bg-[#D8392B] text-white p-[18px] space-y-3.5">
+        <div class="pop rounded-3xl bg-[#D8392B] text-white p-[18px] space-y-3.5">
           <div class="space-y-1">
             <div class="t13 font-bold text-[#FFE1DC]">อย่าพลาด · อีก ${dur(KEY.pickup - t)}</div>
             <div class="text-xl font-bold leading-snug">17:15 รับกระเป๋าที่ รร. → สนามบิน</div>
@@ -1323,7 +1362,7 @@
             <span class="flex justify-between items-center text-sm text-mute">ติ๊กเก็บไว้ในเครื่องนี้<span class="inline-flex items-center font-semibold text-red">เปิดเช็กลิสต์${ic('chev', 16)}</span></span>
           </button>
           <button data-act="goto" data-tab="info" data-target="info-offline" class="card w-full flex items-center gap-3 p-4 text-left">
-            <span class="icb bg-[#F1F3F8]">${ic('cloud', 22)}</span>
+            <span class="icb bg-[#F6EEE3]">${ic('cloud', 22)}</span>
             <span class="flex-1 min-w-0"><span class="block t15 font-bold">ติดตั้งแอป + ดาวน์โหลดใช้ offline</span><span class="block t13 text-mute">ทำตอนต่อ Wi-Fi ที่ไทย</span></span>
             <span class="chip ${ready ? 'chip-ok' : 'chip-bad'} shrink-0">${ready ? 'พร้อมแล้ว' : 'ทำเลย'}</span>
           </button>
@@ -1363,7 +1402,7 @@
           if (nd !== dayObj || nxt.t0 - t > 6 * 3600e3) {
             out.push(`
               <div class="card p-4 flex gap-3 items-center">
-                <span class="icb bg-[#F1F3F8]">${ic('moon', 22)}</span>
+                <span class="icb bg-[#F6EEE3]">${ic('moon', 22)}</span>
                 <div><div class="t17 font-bold">พักผ่อน</div><div class="text-sm text-ink2">ต่อไป ${dayLabel(nd)}${nd.lobby ? ` · นัดล็อบบี้ <b class="text-red">${nd.lobby}</b>` : ''}</div></div>
               </div>`);
           }
@@ -1372,9 +1411,9 @@
         const tomorrow = DAYS[di + 1];
         if (tomorrow?.lobby && shClock(t) >= '18:00') {
           out.push(`
-            <div class="rounded-[20px] bg-[#FFF3D6] px-4 py-3.5 flex gap-3 items-center">
-              <span class="icb bg-white text-[#A04A00]">${ic('clock', 22)}</span>
-              <div class="min-w-0"><div class="text-xs font-bold text-[#8A4200]">พรุ่งนี้ · ${dayLabel(tomorrow)}</div><div class="t15 font-bold">นัดล็อบบี้ ${tomorrow.lobby}</div><div class="t13 text-[#5C3A10]">${esc(tomorrow.title)}</div></div>
+            <div class="pop rounded-[20px] bg-[#FFD43B] px-4 py-3.5 flex gap-3 items-center">
+              <span class="icb bg-white">${ic('clock', 22)}</span>
+              <div class="min-w-0"><div class="text-xs font-bold text-[#4A3B00]">พรุ่งนี้ · ${dayLabel(tomorrow)}</div><div class="t15 font-bold">นัดล็อบบี้ ${tomorrow.lobby}</div><div class="t13 text-[#3A3000]">${esc(tomorrow.title)}</div></div>
             </div>`);
         }
         out.push(timeline(cur ? cur.di : di, t, cur, 'ตารางวันนี้'));
@@ -1401,6 +1440,12 @@
       const thai = t < KEY.land;
       $('clk-main').textContent = thai ? thClock(t) : shClock(t);
       $('clk-sub').textContent = thai ? `เวลาไทย · จีน ${shClock(t)}` : `เซี่ยงไฮ้ · ไทย ${thClock(t)}`;
+      const h = +(thai ? thClock(t) : shClock(t)).slice(0, 2);
+      $('hdr-greet').textContent = t < KEY.meet ? '🧳 เตรียมกระเป๋าให้พร้อม!'
+        : t >= KEY.depart ? '✈️ กลับบ้านปลอดภัยนะทุกคน'
+        : h >= 5 && h < 11 ? '🌅 อรุณสวัสดิ์! พร้อมลุยยัง'
+        : h >= 11 && h < 17 ? '☀️ บ่ายนี้ลุยต่อ!'
+        : h >= 17 && h < 22 ? '🌆 เย็นนี้สนุกแน่' : '🌙 ดึกแล้ว พักผ่อนด้วยนะ';
     }
 
     // ================================================================
@@ -1412,8 +1457,8 @@
       const d = DAYS[activeDay];
       $('day-chips').innerHTML = DAYS.map((x, i) => {
         const on = i === activeDay;
-        return `<button data-act="day" data-di="${i}" aria-pressed="${on}" class="min-h-[58px] rounded-2xl flex flex-col items-center justify-center gap-0.5 leading-tight" style="${on ? `background:${x.color};color:#fff;border:1.5px solid ${x.color}` : 'background:#fff;border:1.5px solid #E6E8EE'}">
-          <span class="text-xs font-bold" style="color:${on ? '#fff' : x.color}">DAY ${i + 1}</span><span class="text-sm font-semibold">${x.dow} ${+x.date.slice(8)}</span>
+        return `<button data-act="day" data-di="${i}" aria-pressed="${on}" class="pop min-h-[58px] rounded-2xl flex flex-col items-center justify-center gap-0.5 leading-tight ${on ? '' : 'shadow-none'}" style="background:${on ? x.pop : '#fff'}">
+          <span class="text-xs font-bold" style="color:${on ? '#1B1B1F' : x.color}">DAY ${i + 1}</span><span class="text-sm font-semibold">${x.dow} ${+x.date.slice(8)}</span>
         </button>`;
       }).join('');
       $('day-head').innerHTML = `<div class="px-1 space-y-1">
@@ -1504,7 +1549,7 @@
           <div class="card overflow-hidden row-div">${items.map((s, i) => {
             const n = NODES[s.node];
             return `<button data-act="place" data-node="${s.node}" class="w-full grid grid-cols-[40px_minmax(0,1fr)_20px] gap-3 items-center px-3.5 py-3 min-h-[68px] text-left">
-              <span class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold" style="background:${d.tint};color:${d.color}">${i + 1}</span>
+              <span class="sticker w-10 h-10 text-xl" style="background:${d.pop}" aria-hidden="true">${n.icon}</span>
               <span class="min-w-0"><span class="zh block t17 font-bold leading-snug">${esc(n.cn)}</span><span class="block t13 text-mute">${esc(n.name)}</span></span>
               <span class="text-mute">${ic('chev', 20)}</span></button>`;
           }).join('')}</div></section>`;
@@ -1524,7 +1569,7 @@
             <span class="t15 font-semibold">${esc(p.th)}</span>
             <span class="flex gap-2 shrink-0">
               <button data-act="speak" data-text="${esc(p.cn)}" aria-label="ฟังเสียงภาษาจีน" class="icb btn-redsoft">${ic('volume', 20)}</button>
-              <button data-act="phrase" data-i="${i}" aria-label="ขยายเต็มจอ" class="icb bg-[#F7F8FB] border border-[#E6E8EE]">${ic('expand', 20)}</button>
+              <button data-act="phrase" data-i="${i}" aria-label="ขยายเต็มจอ" class="icb bg-white">${ic('expand', 20)}</button>
             </span>
           </div>
         </div>`).join('');
@@ -1773,6 +1818,20 @@
       $('chk-count').textContent = `${done} / ${CHECKLIST.length}`;
       $('chk-bar').style.width = Math.round(done / CHECKLIST.length * 100) + '%';
     }
+    function confetti() {
+      const colors = ['#FFD43B', '#FF8FB1', '#5BE0A8', '#7DB7FF', '#C3A1FF', '#D8392B'];
+      for (let i = 0; i < 40; i++) {
+        const c = document.createElement('i');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[i % colors.length];
+        c.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+        c.style.animationDuration = 1.4 + Math.random() * 1.2 + 's';
+        c.style.animationDelay = Math.random() * .3 + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3200);
+      }
+    }
     function renderBookings() {
       $('booking-list').innerHTML = BOOKINGS.map(([tag, title, desc, node]) => {
         const links = NODES[node]?.links || [];
@@ -1904,7 +1963,10 @@
     });
     document.addEventListener('change', e => {
       const k = e.target.dataset?.chk;
-      if (k) { const st = store.get('mtrx-chk', {}); st[k] = e.target.checked; store.set('mtrx-chk', st); renderChecklist(); }
+      if (k) {
+        const st = store.get('mtrx-chk', {}); st[k] = e.target.checked; store.set('mtrx-chk', st); renderChecklist();
+        if (e.target.checked && CHECKLIST.every(([c]) => st[c])) { confetti(); toast('🎉 ครบทุกข้อแล้ว พร้อมบิน!'); }
+      }
       if (e.target.id === 'ocr-file') onImage(e);
     });
     document.addEventListener('input', e => {
@@ -1926,7 +1988,7 @@
       setMicUI(null);
       $('near-grid').innerHTML = NEAR.map(([i, l, q, bg, fg]) => `
         <button data-act="search" data-q="${q}" class="card rounded-[18px] min-h-[96px] px-1.5 py-3 flex flex-col items-center justify-center gap-1.5">
-          <span class="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-bold" style="background:${bg};color:${fg}">${i === 'wc' ? 'WC' : ic(i, 22)}</span>
+          <span class="w-11 h-11 rounded-xl border-2 border-[#1B1B1F] -rotate-3 flex items-center justify-center text-[13px] font-bold" style="background:${bg};color:${fg}">${i === 'wc' ? 'WC' : ic(i, 22)}</span>
           <span class="t13 font-semibold leading-tight">${l}</span><span class="zh text-xs text-mute">${q}</span>
         </button>`).join('');
       $('my-room').value = store.get('mtrx-room', '');
