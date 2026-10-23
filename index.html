@@ -4,29 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>MTRX Shanghai R&D 2026</title>
-  <meta name="theme-color" content="#090d16" />
+  <meta name="theme-color" content="#F4F5F8" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="MTRX 上海" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
+  <link rel="preload" href="vendor/fonts/anuphan-thai-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="vendor/tailwind.css" />
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
   <style>
+    /* Anuphan (SIL OFL, vendor/fonts/OFL-Anuphan.txt) — self-hosted so it works offline */
+    @font-face { font-family: 'Anuphan'; font-style: normal; font-display: swap; font-weight: 100 700;
+      src: url(vendor/fonts/anuphan-thai-wght-normal.woff2) format('woff2');
+      unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC; }
+    @font-face { font-family: 'Anuphan'; font-style: normal; font-display: swap; font-weight: 100 700;
+      src: url(vendor/fonts/anuphan-latin-wght-normal.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+    :root {
+      --bg: #F4F5F8; --card: #FFFFFF; --line: #E6E8EE; --line2: #EEF0F4; --soft: #F1F3F8;
+      --ink: #15171C; --ink2: #3A3F4B; --mute: #5A6070; --dim: #C9CCD6;
+      --red: #D8392B; --red-ink: #C2311F; --red-soft: #FDECE9; --dark: #16181D;
+    }
     /* manipulation = pinch-zoom still works, but double-tap no longer zooms the page */
     html { -webkit-text-size-adjust: 100%; touch-action: manipulation; overscroll-behavior-y: contain; }
     html.big { font-size: 112.5%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "PingFang SC", "Hiragino Sans GB", sans-serif;
-      background: #090d16;
-      color: #f1f5f9;
+      font-family: 'Anuphan', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
       -webkit-tap-highlight-color: transparent;
       -webkit-font-smoothing: antialiased;
       touch-action: manipulation;
     }
     button, a, label, input, textarea, summary, [data-act] { touch-action: manipulation; }
+    button { color: inherit; }
 
     /* Instant press feedback */
     button, a, label, summary { transition: transform .12s ease, opacity .12s ease; }
@@ -44,330 +59,502 @@
     #card-modal { animation: cardIn .2s ease-out both; }
     #toast { animation: toastIn .2s ease-out both; }
     #card-modal, #hotel-sheet { overscroll-behavior: contain; }
-    #dict-grid > button, #phrase-list > button { content-visibility: auto; contain-intrinsic-size: auto 96px; }
+    #dict-grid > button, #phrase-list > div { content-visibility: auto; contain-intrinsic-size: auto 96px; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; }
     }
-    .big-on { background: #fbbf24 !important; color: #020617 !important; }
+
+    /* Type scale in rem so the Aa (big text) switch scales everything */
+    .t11 { font-size: .6875rem; } .t13 { font-size: .8125rem; } .t15 { font-size: .9375rem; }
+    .t17 { font-size: 1.0625rem; } .t19 { font-size: 1.1875rem; } .t26 { font-size: 1.625rem; line-height: 1.2; }
+    .text-mute { color: var(--mute); } .text-ink2 { color: var(--ink2); } .text-dim { color: var(--dim); } .text-red { color: var(--red-ink); }
+    .h1 { margin: 0; font-size: 1.625rem; line-height: 1.2; font-weight: 700; }
+    .kicker { font-size: .8125rem; font-weight: 600; color: var(--mute); }
+    .sec-title { margin: 0; font-size: 1.0625rem; font-weight: 700; }
+    .tnum { font-variant-numeric: tabular-nums; }
+
+    /* Surfaces */
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; }
+    .card-dark { background: var(--dark); color: #fff; border-radius: 24px; }
+    .row-div > * + * { border-top: 1px solid var(--line2); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; font-size: .9375rem; font-weight: 700; line-height: 1.2; text-align: center; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-dark { background: var(--dark); color: #fff; }
+    .btn-line { background: #fff; border: 1.5px solid #D5D9E2; color: var(--ink); }
+    .btn-soft { background: var(--soft); color: var(--ink); }
+    .btn-redsoft { background: var(--red-soft); color: var(--red-ink); }
+    .btn-white { background: #fff; color: var(--ink); }
+    .btn-glass { background: rgba(255,255,255,.12); color: #fff; }
+    .btn:disabled { opacity: .6; }
+    .icb { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; }
+    .link-red { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: .875rem; font-weight: 600; color: var(--red-ink); }
+
+    /* Chips, pills, bars */
+    .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 12px; font-size: .8125rem; font-weight: 600; line-height: 1.35; }
+    .chip-soft { background: var(--soft); color: var(--ink2); }
+    .chip-food { background: #FFF3D6; color: #7A3E00; }
+    .chip-tip { background: #EAF0FF; color: #1F4BB8; }
+    .chip-ok { background: #DDF6EC; color: #046046; }
+    .chip-warn { background: #FFF3D6; color: #7A3E00; }
+    .chip-bad { background: var(--red-soft); color: #B32A1C; }
+    .chip-btn { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-size: .875rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .chip-btn.on { background: var(--dark); border-color: var(--dark); color: #fff; }
+    .pill-dark { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 12px 6px 10px; font-size: .8125rem; font-weight: 600; }
+    .pill-ink { display: inline-flex; align-items: center; gap: 6px; background: var(--dark); color: #fff; border-radius: 999px; padding: 7px 12px; font-size: .8125rem; font-weight: 600; white-space: nowrap; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .note-dark { display: flex; gap: 10px; align-items: flex-start; width: 100%; background: rgba(255,255,255,.08); border-radius: 14px; padding: 10px 12px; font-size: .875rem; line-height: 1.45; color: #EDEEF2; text-align: left; }
+    .bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 99px; background: var(--red); }
+    .bar-dark { background: rgba(255,255,255,.14); }
+
+    /* Inputs and segmented controls */
+    .field { width: 100%; min-height: 48px; border: 1.5px solid var(--line); border-radius: 14px; padding: 0 14px; background: #FBFBFD; color: var(--ink); font-size: 1rem; outline: none; }
+    .field::placeholder { color: #6B7180; }
+    .field:focus { border-color: var(--ink); background: #fff; }
+    textarea.field { padding: 12px 14px; line-height: 1.5; resize: none; }
+    .search { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 0 14px; color: var(--mute); }
+    .search input { flex: 1; min-width: 0; height: 48px; border: 0; outline: none; background: transparent; font-size: .9375rem; color: var(--ink); }
+    .search input::placeholder { color: #6B7180; }
+    .seg { display: grid; gap: 4px; background: #E7E9EF; border-radius: 16px; padding: 4px; }
+    .seg > button { min-height: 44px; border-radius: 12px; font-size: .9375rem; font-weight: 700; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .seg > button.on { background: #fff; box-shadow: 0 1px 3px rgba(21,23,28,.14); }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .no-sb { scrollbar-width: none; } .no-sb::-webkit-scrollbar { display: none; }
+
+    /* Trip list: numbered stops joined by a dashed travel line */
+    .num { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .8125rem; font-weight: 700; flex-shrink: 0; }
+    .move { display: flex; align-items: center; gap: 8px; margin-left: 29px; padding: 4px 0 4px 18px; border-left: 2px dashed #CDD2DC; min-height: 34px; font-size: .8125rem; line-height: 1.4; color: var(--mute); }
+
+    /* Today timeline */
+    .tl { position: relative; list-style: none; margin: 0; padding: 0; }
+    .tl::before { content: ''; position: absolute; left: 67px; top: 22px; bottom: 22px; width: 2px; background: var(--line); }
+    .tl-row { width: 100%; display: grid; grid-template-columns: 48px 20px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 44px; text-align: left; }
+    .tl-time { font-size: .875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .tl-dot { position: relative; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .tl-dot.done { background: var(--line); color: var(--mute); }
+    .tl-dot.next { background: #fff; border: 2px solid #C9CDD6; }
+    .tl-title { display: flex; align-items: center; gap: 8px; font-size: .9375rem; line-height: 1.35; font-weight: 600; }
+    .tl-time.done, .tl-title.done { color: var(--mute); font-weight: 500; }
+    .tl-time.now, .tl-title.now { font-weight: 700; }
+    .tl-now { flex-shrink: 0; font-size: .6875rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+
+    /* Bottom navigation */
+    .navbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 64px; font-size: .75rem; font-weight: 600; color: var(--mute); }
+    .navbtn .nb { width: 52px; height: 30px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
+    .navbtn.on { color: var(--red-ink); font-weight: 700; }
+    .navbtn.on .nb { background: var(--red-soft); }
+
+    i[data-ic] { display: inline-flex; font-style: normal; }
+    .big-on { background: var(--dark) !important; color: #fff !important; }
     .zh { font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
     [hidden] { display: none !important; }
-    #map { height: 280px; border-radius: 1rem; }
-    .pin { display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-weight: 800; color: #fff; border: 2.5px solid #fff; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
-    .pin-on { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(251,191,36,.5), 0 6px 18px rgba(0,0,0,.7); }
-    .pin-label { background: rgba(15,23,42,.92); color: #fff; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .card-on { outline: 3px solid #fbbf24; outline-offset: 2px; }
+    #map { height: 260px; border-radius: 18px; }
+    .leaflet-container { font-family: inherit; }
+    .pin { display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-weight: 700; color: #fff; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(21,23,28,.35); }
+    .pin-on { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(216,57,43,.3), 0 4px 12px rgba(21,23,28,.45); }
+    .pin-label { background: #fff; color: var(--ink); padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 1px 4px rgba(21,23,28,.2); }
+    .card-on { outline: 3px solid var(--red); outline-offset: 2px; }
     @keyframes scanline { 0%,100% { top: 12%; } 50% { top: 84%; } }
     .laser { position: absolute; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, transparent, #34d399, transparent); box-shadow: 0 0 12px #10b981; animation: scanline 2.4s infinite ease-in-out; }
     .safe-b { padding-bottom: env(safe-area-inset-bottom); }
     .safe-t { padding-top: env(safe-area-inset-top); }
-    .fab { bottom: calc(76px + env(safe-area-inset-bottom)); }
-    .toast { bottom: calc(140px + env(safe-area-inset-bottom)); }
+    .topbar { background: rgba(244,245,248,.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .fab { bottom: calc(80px + env(safe-area-inset-bottom)); box-shadow: 0 10px 24px rgba(216,57,43,.32); }
+    .toast { bottom: calc(144px + env(safe-area-inset-bottom)); }
     section, #tab-trip > div[id^="stop-"] { scroll-margin-top: 64px; }
     #stop-list > div { scroll-margin-top: 130px; }
     details > summary { list-style: none; cursor: pointer; }
     details > summary::-webkit-details-marker { display: none; }
+    details[open] .chev-down { transform: rotate(180deg); }
   </style>
 </head>
-<body class="min-h-screen text-[15px] leading-relaxed">
+<body class="min-h-screen t15 leading-relaxed">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 bg-slate-950 border-b border-slate-800 safe-t">
+  <header class="topbar sticky top-0 z-30 safe-t">
     <div class="h-12 max-w-3xl mx-auto px-4 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2 min-w-0">
-        <span class="shrink-0 bg-indigo-600 text-white text-xs font-black px-2 py-1 rounded-md">MTRX 上海</span>
-        <span id="hdr-status" class="text-sm font-bold text-slate-200 truncate">Shanghai R&amp;D Trip</span>
-      </div>
+      <span class="shrink-0 bg-[#16181D] text-white text-xs font-bold px-2.5 py-1 rounded-lg">STDMTRX <span class="zh">上海</span></span>
       <div class="flex items-center gap-2 shrink-0">
-        <span id="net-pill" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-800 text-slate-300">● ออนไลน์</span>
-        <button id="btn-big" data-act="bigtext" aria-label="ขยายตัวอักษร" aria-pressed="false" class="h-9 w-10 rounded-lg bg-slate-800 text-slate-100 font-bold text-sm">Aa</button>
+        <span id="net-pill" class="chip chip-soft">ออนไลน์</span>
+        <button id="btn-big" data-act="bigtext" aria-label="ขยายตัวอักษร" aria-pressed="false" class="h-9 w-10 rounded-xl bg-white border border-[#E6E8EE] font-bold text-sm">Aa</button>
       </div>
     </div>
   </header>
 
+  <!-- New version available -->
+  <div id="update-banner" hidden class="max-w-3xl mx-auto px-4 pt-3">
+    <button data-act="reload" class="w-full flex gap-3 items-center rounded-2xl bg-[#16181D] text-white font-semibold px-4 py-3 text-left"><i data-ic="download" data-s="20"></i><span>มีเวอร์ชันใหม่ของแอป · แตะเพื่ออัปเดต</span></button>
+  </div>
+
   <!-- LINE in-app browser notice -->
   <div id="line-banner" hidden class="max-w-3xl mx-auto px-4 pt-3">
-    <a href="?openExternalBrowser=1" class="block rounded-xl bg-amber-400 text-slate-950 font-bold px-4 py-3">
-      ⚠️ กำลังเปิดในแอป LINE • แตะตรงนี้เพื่อเปิดใน Safari / Chrome (ใช้งานได้เต็มที่และติดตั้งลงหน้าโฮมได้)
+    <a href="?openExternalBrowser=1" class="flex gap-3 items-start rounded-2xl bg-[#FFF3D6] text-[#5C3A10] font-semibold px-4 py-3">
+      <i data-ic="alert" data-s="20" class="mt-0.5"></i><span>กำลังเปิดในแอป LINE · แตะตรงนี้เพื่อเปิดใน Safari / Chrome (ใช้งานได้เต็มที่และติดตั้งลงหน้าโฮมได้)</span>
     </a>
   </div>
 
-  <main class="max-w-3xl mx-auto px-4 pt-4 pb-40">
+  <main class="max-w-3xl mx-auto px-4 pt-3 pb-44">
 
     <!-- ===================== TAB: TODAY ===================== -->
-    <div id="tab-today" class="tab-in space-y-4">
-      <div id="today-body" class="space-y-3"></div>
-
-      <div>
-        <h2 class="text-sm font-bold text-slate-400 mb-2">📍 หาของใกล้ตัว (เปิดใน Amap)</h2>
-        <div class="grid grid-cols-3 gap-2" id="near-grid"></div>
+    <div id="tab-today" class="tab-in space-y-3.5">
+      <div class="tab-head flex justify-between items-start gap-3">
+        <div class="min-w-0 space-y-1">
+          <div id="hdr-status" class="kicker">Shanghai R&amp;D Trip</div>
+          <h1 class="h1">สวัสดี ทีม STDMTRX</h1>
+        </div>
+        <div class="card shrink-0 rounded-[14px] px-3 py-2 text-right">
+          <div id="clk-main" class="t17 font-bold tnum leading-tight">--:--</div>
+          <div id="clk-sub" class="t11 font-semibold text-mute whitespace-nowrap"></div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <button data-act="tab" data-tab="translate" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 font-bold">📷 แปลเมนู / ป้าย</button>
-        <button data-act="goto" data-tab="info" data-target="info-sos" class="h-14 rounded-2xl bg-rose-600/20 border border-rose-500/40 text-rose-200 font-bold">🆘 ฉุกเฉิน</button>
+      <div id="today-body" class="space-y-3.5"></div>
+
+      <section class="space-y-2.5">
+        <div class="flex justify-between items-baseline px-1">
+          <h2 class="sec-title">หาของใกล้ตัว</h2>
+          <span class="t13 text-mute">แตะแล้วเปิดใน Amap</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2.5" id="near-grid"></div>
+      </section>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button data-act="tab" data-tab="translate" class="btn btn-line min-h-[56px] rounded-2xl"><i data-ic="camera" data-s="20"></i>แปลเมนู / ป้าย</button>
+        <button data-act="goto" data-tab="info" data-target="info-sos" class="btn btn-redsoft min-h-[56px] rounded-2xl"><i data-ic="shield" data-s="20"></i>ฉุกเฉิน</button>
       </div>
     </div>
 
     <!-- ===================== TAB: TRIP ===================== -->
-    <div id="tab-trip" hidden class="tab-in space-y-3">
-      <div id="day-chips" class="grid grid-cols-4 gap-2 sticky top-12 z-20 bg-slate-950/95 py-2 -mx-4 px-4"></div>
-      <div id="day-head"></div>
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2">
-        <div id="map"></div>
-        <p class="text-xs text-slate-400 px-1 pt-2">แตะหมุดเพื่อเลื่อนไปที่จุดนั้น • ปุ่ม 🧭 นำทาง จะเปิดแอป Amap พร้อมพิกัดจริง</p>
+    <div id="tab-trip" hidden class="tab-in space-y-3.5">
+      <div class="tab-head space-y-1">
+        <div class="kicker">26–29 ต.ค. 2026 · 4 วัน 3 คืน</div>
+        <h1 class="h1">แผนทริป</h1>
       </div>
-      <div id="stop-list" class="space-y-3"></div>
+      <div id="day-chips" class="grid grid-cols-4 gap-2 sticky top-12 z-20 bg-[#F4F5F8]/95 py-2 -mx-4 px-4"></div>
+      <div class="card p-2">
+        <div id="map"></div>
+        <p class="t13 text-mute px-1 pt-2">แตะหมุดเพื่อเลื่อนไปที่จุดนั้น · ปุ่มนำทางจะเปิดแอป Amap พร้อมพิกัดจริง</p>
+      </div>
+      <div id="day-head"></div>
+      <div id="stop-list" class="space-y-2"></div>
     </div>
 
     <!-- ===================== TAB: CHINESE CARDS ===================== -->
-    <div id="tab-cards" hidden class="tab-in space-y-5">
-      <button data-act="hotelcard" class="w-full text-left rounded-2xl bg-amber-400 text-slate-950 p-4 shadow-lg">
-        <div class="text-xs font-black">🏨 แตะเพื่อโชว์คนขับ: กลับโรงแรม</div>
-        <div class="zh text-2xl font-black leading-snug mt-1">和颐至尚酒店(上海火车站南广场店)</div>
-        <div class="zh text-lg font-bold">上海市静安区天目西路511号</div>
-      </button>
-
-      <div>
-        <h2 class="text-base font-bold text-amber-300 mb-2">🚕 ป้ายบอกคนขับ ตามแผนทริป</h2>
-        <div id="place-cards" class="space-y-4"></div>
+    <div id="tab-cards" hidden class="tab-in space-y-3.5">
+      <div class="tab-head space-y-1">
+        <div class="kicker">โชว์ให้คนขับหรือพนักงานดู</div>
+        <h1 class="h1">ป้ายจีน</h1>
+      </div>
+      <div class="seg grid-cols-2" role="tablist" aria-label="ประเภทป้าย">
+        <button data-act="cview" data-v="places" role="tab" class="on" aria-selected="true">สถานที่</button>
+        <button data-act="cview" data-v="phrases" role="tab" aria-selected="false">ประโยคสำเร็จรูป</button>
       </div>
 
-      <div>
-        <h2 class="text-base font-bold text-amber-300 mb-2">🗣️ ประโยคสำเร็จรูป (แตะเพื่อขยายเต็มจอ + เสียงจีน)</h2>
-        <div id="phrase-chips" class="flex flex-wrap gap-2 mb-3"></div>
-        <div id="phrase-list" class="space-y-2"></div>
+      <div id="cards-places" class="space-y-3.5">
+        <label class="search">
+          <i data-ic="search" data-s="20"></i>
+          <span class="sr">ค้นหาสถานที่</span>
+          <input id="place-q" type="search" autocomplete="off" placeholder="ค้นหา เช่น Disney, M50, 迪士尼" />
+        </label>
+        <button data-act="hotelcard" class="card-dark w-full text-left p-[18px] space-y-3 block">
+          <span class="flex justify-between items-center gap-2">
+            <span class="pill-dark"><i data-ic="bed" data-s="16"></i>โรงแรมของเรา</span>
+            <span class="inline-flex items-center gap-1 t13 font-semibold text-[#FFB4A8]">แตะเพื่อขยาย<i data-ic="chev" data-s="16"></i></span>
+          </span>
+          <span class="zh block text-2xl font-bold leading-snug">和颐至尚酒店(上海火车站南广场店)</span>
+          <span class="zh block t15 text-[#DADCE3]">上海市静安区天目西路511号</span>
+          <span class="block text-sm text-dim">Yitel Collection · 511 Tianmu West Rd., Jing'an</span>
+        </button>
+        <div id="place-cards" class="space-y-3.5"></div>
+      </div>
+
+      <div id="cards-phrases" hidden class="space-y-3">
+        <div id="phrase-chips" class="flex gap-2 overflow-x-auto no-sb -mx-4 px-4"></div>
+        <div id="phrase-list" class="space-y-2.5"></div>
       </div>
     </div>
 
     <!-- ===================== TAB: TRANSLATE ===================== -->
-    <div id="tab-translate" hidden class="tab-in space-y-5">
+    <div id="tab-translate" hidden class="tab-in space-y-3.5">
+      <div class="tab-head space-y-1">
+        <div class="kicker">ไทย ⇄ จีน · อ่านเมนูด้วยกล้องได้</div>
+        <h1 class="h1">แปล</h1>
+      </div>
+      <div class="seg grid-cols-3" role="tablist" aria-label="วิธีแปล">
+        <button data-act="trmode" data-v="scan" role="tab" class="on" aria-selected="true"><i data-ic="camera" data-s="18"></i>สแกน</button>
+        <button data-act="trmode" data-v="text" role="tab" aria-selected="false"><i data-ic="keyboard" data-s="18"></i>พิมพ์/พูด</button>
+        <button data-act="trmode" data-v="dict" role="tab" aria-selected="false"><i data-ic="book" data-s="18"></i>โพยคำ</button>
+      </div>
 
-      <!-- 1. Keyboard Scan Text -->
-      <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 space-y-3">
-        <h2 class="text-base font-bold text-emerald-300">⚡ สแกนป้าย/เมนู ด้วยกล้องคีย์บอร์ด (เร็วสุด)</h2>
-        <p class="text-sm text-slate-300">แตะช่องด้านล่าง ➜ กด <b>สแกนข้อความ (Scan Text)</b> บนแป้นพิมพ์ ➜ ส่องป้าย คำจีนจะเข้าช่องแล้วแปลให้ทันที</p>
-        <div class="flex gap-2">
-          <input id="live-input" type="text" autocomplete="off" placeholder="แตะแล้วสแกน หรือพิมพ์/วางคำจีน" class="zh flex-1 min-w-0 h-12 bg-slate-950 border border-emerald-500/50 rounded-xl px-3 text-base text-white placeholder-slate-500 outline-none" />
-          <button data-act="clearlive" class="h-12 px-3 rounded-xl bg-slate-800 font-bold text-sm">ล้าง</button>
-        </div>
-        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <span id="scan-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300">รอข้อความจีน</span>
-            <div class="flex gap-2 shrink-0">
-              <button data-act="speakscan" aria-label="ฟังเสียงจีน" class="h-10 px-3 rounded-lg bg-indigo-600/30 text-indigo-200 font-bold text-sm">🔊</button>
-              <button data-act="copyscan" aria-label="คัดลอก" class="h-10 px-3 rounded-lg bg-slate-800 font-bold text-sm">📋</button>
+      <!-- Scan: keyboard Scan Text first, in-app camera as backup -->
+      <div id="tr-scan" class="space-y-3.5">
+        <section class="card p-4 space-y-3">
+          <h2 class="sec-title flex items-center gap-2"><i data-ic="zap" data-s="20" class="text-red"></i>สแกนด้วยกล้องคีย์บอร์ด (เร็วสุด)</h2>
+          <p class="text-sm text-ink2">แตะช่องด้านล่าง ➜ กด <b>สแกนข้อความ (Scan Text)</b> บนแป้นพิมพ์ ➜ ส่องป้าย คำจีนจะเข้าช่องแล้วแปลให้ทันที</p>
+          <div class="flex gap-2">
+            <label class="flex-1 min-w-0"><span class="sr">ข้อความภาษาจีน</span>
+              <input id="live-input" type="text" autocomplete="off" placeholder="แตะแล้วสแกน หรือพิมพ์/วางคำจีน" class="zh field" />
+            </label>
+            <button data-act="clearlive" class="btn btn-soft shrink-0">ล้าง</button>
+          </div>
+          <div class="rounded-2xl bg-[#F4F5F8] p-3 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span id="scan-badge" class="chip chip-soft">รอข้อความจีน</span>
+              <div class="flex gap-2 shrink-0">
+                <button data-act="speakscan" aria-label="ฟังเสียงจีน" class="icb btn-redsoft"><i data-ic="volume" data-s="20"></i></button>
+                <button data-act="copyscan" aria-label="คัดลอก" class="icb bg-white border border-[#E6E8EE]"><i data-ic="copy" data-s="20"></i></button>
+              </div>
             </div>
+            <div id="scan-cn" class="zh text-2xl font-bold break-words">—</div>
+            <div id="scan-th" class="text-base font-semibold text-ink2"></div>
+            <div id="scan-chips" class="flex flex-wrap gap-2"></div>
           </div>
-          <div id="scan-cn" class="zh text-2xl font-black text-amber-300 break-words">—</div>
-          <div id="scan-th" class="text-base font-bold text-emerald-300"></div>
-          <div id="scan-chips" class="flex flex-wrap gap-2"></div>
-        </div>
+        </section>
+
+        <section class="card p-4 space-y-3">
+          <h2 class="sec-title flex items-center gap-2"><i data-ic="camera" data-s="20"></i>กล้องสแกนในแอป (สำรอง)</h2>
+          <div class="relative bg-[#1E2128] rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+            <video id="cam-video" autoplay playsinline muted hidden class="w-full h-full object-cover"></video>
+            <canvas id="cam-canvas" hidden></canvas>
+            <img id="cam-preview" hidden class="w-full h-full object-contain" alt="" />
+            <div id="cam-overlay" hidden class="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div class="w-4/5 h-1/2 border-2 border-white rounded-xl relative" style="box-shadow:0 0 0 9999px rgba(22,24,29,.55)"><div class="laser"></div></div>
+            </div>
+            <div id="cam-placeholder" class="text-center p-4 text-sm text-[#DADCE3]">เปิดกล้องแล้วเล็งตัวอักษรจีนให้อยู่ในกรอบ<br/>ครั้งแรกจะโหลดข้อมูลภาษาจีนประมาณ 3–4 MB</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-cam-start" data-act="camstart" class="btn btn-red"><i data-ic="camera" data-s="20"></i>เปิดกล้อง</button>
+            <button id="btn-cam-snap" data-act="camsnap" hidden class="btn btn-red"><i data-ic="zap" data-s="20"></i>สแกนในกรอบ</button>
+            <button id="btn-cam-stop" data-act="camstop" hidden class="btn btn-dark"><i data-ic="stop" data-s="20"></i>ปิดกล้อง</button>
+            <label class="btn btn-line cursor-pointer">
+              <i data-ic="image" data-s="20"></i>ถ่าย / เลือกรูป
+              <input type="file" id="ocr-file" accept="image/*" class="hidden" />
+            </label>
+          </div>
+        </section>
       </div>
 
-      <!-- 2. Camera OCR -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-base font-bold text-emerald-300">📷 กล้องสแกนในแอป (สำรอง)</h2>
-        <div class="relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video flex items-center justify-center">
-          <video id="cam-video" autoplay playsinline muted hidden class="w-full h-full object-cover"></video>
-          <canvas id="cam-canvas" hidden></canvas>
-          <img id="cam-preview" hidden class="w-full h-full object-contain" alt="" />
-          <div id="cam-overlay" hidden class="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div class="w-4/5 h-1/2 border-2 border-emerald-400 rounded-xl relative" style="box-shadow:0 0 0 9999px rgba(9,13,22,.55)"><div class="laser"></div></div>
+      <!-- Type or speak a sentence -->
+      <div id="tr-text" hidden class="space-y-3.5">
+        <section class="card p-4 space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <button data-act="mic" data-lang="th-TH" class="btn btn-soft t13"></button>
+            <button data-act="mic" data-lang="zh-CN" class="btn btn-soft t13"></button>
           </div>
-          <div id="cam-placeholder" class="text-center p-4 text-sm text-slate-400">เปิดกล้องแล้วเล็งตัวอักษรจีนให้อยู่ในกรอบเขียว<br/>ครั้งแรกจะโหลดข้อมูลภาษาจีนประมาณ 3–4 MB</div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btn-cam-start" data-act="camstart" class="h-12 rounded-xl bg-emerald-500 text-slate-950 font-bold">📷 เปิดกล้อง</button>
-          <button id="btn-cam-snap" data-act="camsnap" hidden class="h-12 rounded-xl bg-amber-400 text-slate-950 font-black">⚡ สแกนในกรอบ</button>
-          <button id="btn-cam-stop" data-act="camstop" hidden class="h-12 rounded-xl bg-rose-600 text-white font-bold">⏹ ปิดกล้อง</button>
-          <label class="h-12 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center cursor-pointer">
-            🖼️ ถ่าย / เลือกรูป
-            <input type="file" id="ocr-file" accept="image/*" class="hidden" />
+          <label class="block space-y-1.5">
+            <span class="t13 font-semibold text-mute">พิมพ์ภาษาไทยหรือภาษาจีน</span>
+            <textarea id="trans-input" rows="3" placeholder="เช่น ขอน้ำเปล่า 6 ขวด (iPhone: ใช้ไมค์บนแป้นพิมพ์ก็ได้)" class="field t17"></textarea>
           </label>
-        </div>
-      </div>
-
-      <!-- 3. Translator -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-base font-bold text-indigo-300">🎙️ แปลประโยค ไทย ⇄ จีน (ต้องใช้เน็ต)</h2>
-        <div class="grid grid-cols-2 gap-2">
-          <button data-act="mic" data-lang="th-TH" class="h-12 rounded-xl bg-indigo-600/25 border border-indigo-500/40 text-indigo-100 font-bold text-sm">🎙️ พูดไทย → จีน</button>
-          <button data-act="mic" data-lang="zh-CN" class="h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-100 font-bold text-sm">🎙️ คนจีนพูด → ไทย</button>
-        </div>
-        <textarea id="trans-input" rows="2" placeholder="พิมพ์ภาษาไทยหรือภาษาจีน (iPhone: ใช้ไมค์บนแป้นพิมพ์ก็ได้)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base text-white placeholder-slate-500 outline-none"></textarea>
-        <button data-act="translate" class="w-full h-12 rounded-xl bg-indigo-600 text-white font-bold">⚡ แปล</button>
-        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
-          <div id="trans-status" class="text-xs font-bold text-slate-400">พิมพ์หรือพูดแล้วกดแปล</div>
-          <div id="trans-main" class="zh text-2xl font-black text-amber-300 break-words"></div>
-          <div id="trans-sub" class="text-sm text-slate-400"></div>
-          <div id="trans-actions" hidden class="grid grid-cols-3 gap-2">
-            <button data-act="speaktrans" class="h-11 rounded-lg bg-emerald-500 text-slate-950 font-bold text-sm">🔊 พูด</button>
-            <button data-act="cardtrans" class="h-11 rounded-lg bg-amber-400 text-slate-950 font-bold text-sm">📱 เต็มจอ</button>
-            <button data-act="copytrans" class="h-11 rounded-lg bg-slate-800 font-bold text-sm">📋 Copy</button>
+          <button data-act="translate" class="btn btn-red w-full min-h-[52px]"><i data-ic="translate" data-s="20"></i>แปล</button>
+        </section>
+        <section class="card-dark p-[18px] space-y-2.5" aria-live="polite">
+          <div id="trans-status" class="t13 font-semibold text-dim">พิมพ์หรือพูดแล้วกดแปล</div>
+          <div id="trans-main" class="zh text-3xl font-bold break-words"></div>
+          <div id="trans-sub" class="text-sm text-dim"></div>
+          <div id="trans-actions" hidden class="grid grid-cols-3 gap-2 pt-1">
+            <button data-act="speaktrans" class="btn btn-red px-2"><i data-ic="volume" data-s="18"></i>ฟัง</button>
+            <button data-act="cardtrans" class="btn btn-glass px-2"><i data-ic="expand" data-s="18"></i>เต็มจอ</button>
+            <button data-act="copytrans" class="btn btn-glass px-2"><i data-ic="copy" data-s="18"></i>คัดลอก</button>
           </div>
-        </div>
-        <p class="text-xs text-slate-400">💡 คำแปลออนไลน์อาจไม่เป๊ะ ถ้าเป็นเรื่องสำคัญให้ใช้ประโยคสำเร็จรูปในแท็บ 🚕 ป้ายจีน หรือแอป Google / Apple Translate ที่โหลดภาษาไว้ offline</p>
+        </section>
+        <p class="flex gap-2 items-start t13 text-mute px-1"><i data-ic="info" data-s="16" class="mt-0.5"></i><span>คำแปลออนไลน์ต้องใช้เน็ตและอาจไม่เป๊ะ ถ้าเป็นเรื่องสำคัญใช้ประโยคสำเร็จรูปในแท็บป้ายจีน หรือ Google / Apple Translate ที่โหลดภาษาไว้ offline</span></p>
       </div>
 
-      <!-- 4. Offline decoder -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-base font-bold text-emerald-300">🔍 โพยคำจีนบนเมนู & ป้าย (ไม่ต้องใช้เน็ต)</h2>
-        <input id="dict-q" type="search" placeholder="ค้นหา เช่น หมู, แพ้, เผ็ด, ห้องน้ำ, TRON" class="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white outline-none" />
-        <div id="dict-chips" class="flex flex-wrap gap-2"></div>
+      <!-- Offline word list -->
+      <div id="tr-dict" hidden class="space-y-3">
+        <label class="search">
+          <i data-ic="search" data-s="20"></i>
+          <span class="sr">ค้นหาคำ</span>
+          <input id="dict-q" type="search" autocomplete="off" placeholder="ค้นหา เช่น หมู, แพ้, เผ็ด, ห้องน้ำ, TRON" />
+        </label>
+        <div id="dict-chips" class="flex gap-2 overflow-x-auto no-sb -mx-4 px-4"></div>
+        <p class="t13 text-mute px-1">ใช้ได้แม้ไม่มีเน็ต · แตะคำเพื่อขยายและฟังเสียง</p>
         <div id="dict-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
       </div>
     </div>
 
     <!-- ===================== TAB: INFO ===================== -->
-    <div id="tab-info" hidden class="tab-in space-y-5">
+    <div id="tab-info" hidden class="tab-in space-y-3.5">
+      <div class="tab-head space-y-1">
+        <div class="kicker">ฉุกเฉิน · โรงแรม · ไฟลต์ · เช็กลิสต์</div>
+        <h1 class="h1">ข้อมูลทริป</h1>
+      </div>
 
-      <section id="info-sos" class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 space-y-3">
-        <h2 class="text-lg font-black text-rose-200">🆘 ฉุกเฉิน (แตะเพื่อโทร)</h2>
-        <div class="grid grid-cols-2 gap-2">
-          <a href="tel:110" class="h-14 rounded-xl bg-rose-600 text-white font-black flex flex-col items-center justify-center leading-tight"><span class="text-lg">110</span><span class="text-xs">ตำรวจ</span></a>
-          <a href="tel:120" class="h-14 rounded-xl bg-rose-600 text-white font-black flex flex-col items-center justify-center leading-tight"><span class="text-lg">120</span><span class="text-xs">รถพยาบาล</span></a>
-          <a href="tel:119" class="h-14 rounded-xl bg-slate-800 text-white font-black flex flex-col items-center justify-center leading-tight"><span class="text-lg">119</span><span class="text-xs">ดับเพลิง</span></a>
-          <a href="tel:122" class="h-14 rounded-xl bg-slate-800 text-white font-black flex flex-col items-center justify-center leading-tight"><span class="text-lg">122</span><span class="text-xs">อุบัติเหตุจราจร</span></a>
-          <a href="tel:+862152711555" class="h-14 rounded-xl bg-amber-400 text-slate-950 font-black flex flex-col items-center justify-center leading-tight col-span-2"><span>☎️ โทรหาโรงแรม Yitel Collection</span><span class="text-xs">+86-21-5271-1555</span></a>
-          <a href="tel:+8618516268776" class="h-14 rounded-xl bg-indigo-600 text-white font-black flex flex-col items-center justify-center leading-tight col-span-2"><span>🇹🇭 สถานกงสุลใหญ่ไทย ณ เซี่ยงไฮ้ (สายฉุกเฉิน)</span><span class="text-xs">+86-185-1626-8776</span></a>
+      <section id="info-sos" class="card p-4 space-y-3">
+        <h2 class="sec-title flex items-center gap-2"><i data-ic="shield" data-s="20" class="text-red"></i>ฉุกเฉิน · แตะเพื่อโทร</h2>
+        <div class="grid grid-cols-4 gap-2">
+          <a href="tel:110" class="btn btn-red flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">110</span><span class="t11 font-semibold">ตำรวจ</span></a>
+          <a href="tel:120" class="btn btn-red flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">120</span><span class="t11 font-semibold whitespace-nowrap">รถพยาบาล</span></a>
+          <a href="tel:119" class="btn btn-dark flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">119</span><span class="t11 font-semibold">ดับเพลิง</span></a>
+          <a href="tel:122" class="btn btn-dark flex-col gap-0 min-h-[64px] px-1"><span class="text-xl leading-tight">122</span><span class="t11 font-semibold">อุบัติเหตุ</span></a>
         </div>
-        <p class="text-xs text-rose-200/80">เบอร์กงสุลมาจากแหล่งข้อมูลรอง 2 แห่ง ยังไม่ได้ยืนยันกับเว็บทางการ • <a class="underline" href="https://shanghai.thaiembassy.org" target="_blank" rel="noopener">เว็บสถานกงสุลใหญ่ไทย ณ เซี่ยงไฮ้</a></p>
+        <a href="tel:+862152711555" class="flex items-center gap-3 min-h-[56px] rounded-2xl bg-[#F1F3F8] px-4 py-2">
+          <i data-ic="phone" data-s="20"></i>
+          <span class="flex flex-col"><span class="text-sm font-bold">โทรหาโรงแรม Yitel Collection</span><span class="t13 font-semibold text-mute tnum">+86-21-5271-1555</span></span>
+        </a>
+        <a href="tel:+8618516268776" class="flex items-center gap-3 min-h-[56px] rounded-2xl bg-[#EAF0FF] text-[#1F4BB8] px-4 py-2">
+          <i data-ic="phone" data-s="20"></i>
+          <span class="flex flex-col"><span class="text-sm font-bold">สถานกงสุลใหญ่ไทย ณ เซี่ยงไฮ้ (สายฉุกเฉิน)</span><span class="t13 font-semibold tnum">+86-185-1626-8776</span></span>
+        </a>
+        <p class="t13 text-mute">เบอร์กงสุลมาจากแหล่งข้อมูลรอง 2 แห่ง ยังไม่ได้ยืนยันกับเว็บทางการ · <a class="underline text-red" href="https://shanghai.thaiembassy.org" target="_blank" rel="noopener">เว็บสถานกงสุลใหญ่ไทย ณ เซี่ยงไฮ้</a></p>
         <div class="grid grid-cols-1 gap-2">
-          <button data-act="phrase" data-key="sos-help" class="h-12 rounded-xl bg-white text-slate-950 font-bold">🆘 การ์ด "ช่วยด้วย" (ภาษาจีน)</button>
-          <button data-act="phrase" data-key="sos-hospital" class="h-12 rounded-xl bg-white text-slate-950 font-bold">🏥 การ์ด "พาไปโรงพยาบาลที่ใกล้ที่สุด"</button>
-          <button data-act="phrase" data-key="sos-lost" class="h-12 rounded-xl bg-white text-slate-950 font-bold">🧭 การ์ด "หลงทาง ช่วยโทรหาโรงแรม"</button>
+          <button data-act="phrase" data-key="sos-help" class="btn btn-soft justify-start">การ์ด "ช่วยด้วย" (ภาษาจีน)</button>
+          <button data-act="phrase" data-key="sos-hospital" class="btn btn-soft justify-start">การ์ด "พาไปโรงพยาบาลที่ใกล้ที่สุด"</button>
+          <button data-act="phrase" data-key="sos-lost" class="btn btn-soft justify-start">การ์ด "หลงทาง ช่วยโทรหาโรงแรม"</button>
         </div>
       </section>
 
-      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-lg font-black text-emerald-300">🏨 โรงแรม (3 คืน • 26–29 ต.ค.)</h2>
-        <div>
-          <div class="font-bold">Yitel Collection (Shanghai train station)</div>
-          <div class="zh text-amber-300 font-bold">和颐至尚酒店(上海火车站南广场店)</div>
-          <div class="text-sm text-slate-300">No. 511 Tianmu West Rd., Jing'an • <span class="zh">上海市静安区天目西路511号</span></div>
-          <div class="text-sm text-slate-400">เช็กอินหลัง 15:00 (ฝากกระเป๋าตอนเช้าได้) • เช็กเอาต์ก่อน 12:00 • โรงแรมอยู่ห่างลานใต้ของสถานีรถไฟจริง ~600 ม. ให้คนขับไปที่ "天目西路511号"</div>
+      <section class="card p-4 space-y-3.5">
+        <div class="flex gap-3 items-start">
+          <span class="icb bg-[#16181D] text-white"><i data-ic="bed" data-s="22"></i></span>
+          <div class="min-w-0 space-y-0.5">
+            <h2 class="sec-title">Yitel Collection (Shanghai train station)</h2>
+            <div class="zh text-sm text-ink2">和颐至尚酒店(上海火车站南广场店)</div>
+            <div class="t13 text-mute">No. 511 Tianmu West Rd., Jing'an · <span class="zh">上海市静安区天目西路511号</span></div>
+          </div>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-center text-sm">
-          <div class="rounded-xl bg-slate-950 border border-slate-800 p-2"><div class="text-xs text-slate-400">ห้อง 1</div><div class="font-bold">Snook + Little</div></div>
-          <div class="rounded-xl bg-slate-950 border border-slate-800 p-2"><div class="text-xs text-slate-400">ห้อง 2</div><div class="font-bold">Joe + Pide</div></div>
-          <div class="rounded-xl bg-slate-950 border border-slate-800 p-2"><div class="text-xs text-slate-400">ห้อง 3</div><div class="font-bold">Earth + Kwang</div></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="rounded-[14px] bg-[#F4F5F8] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กอิน</div><div class="t15 font-bold">จ. 26 ต.ค. หลัง 15:00</div></div>
+          <div class="rounded-[14px] bg-[#F4F5F8] px-3 py-2.5"><div class="text-xs font-semibold text-mute">เช็กเอาต์</div><div class="t15 font-bold">พฤ. 29 ต.ค. ก่อน 12:00</div></div>
         </div>
-        <label class="block text-sm text-slate-300">เลขห้องของฉัน (บันทึกในเครื่องนี้)
-          <input id="my-room" type="text" inputmode="numeric" placeholder="เช่น 1208" class="mt-1 w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white outline-none" />
+        <p class="t13 text-mute">ฝากกระเป๋าตอนเช้าได้ · โรงแรมอยู่ห่างลานใต้ของสถานีรถไฟจริง ~600 ม. ให้คนขับไปที่ "<span class="zh">天目西路511号</span>"</p>
+        <div class="space-y-2">
+          <div class="t13 font-bold text-mute">ผังห้อง · Superior 2-bed Room</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 1</div><div class="t15 font-bold leading-snug">Snook<br/>Little</div></div>
+            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 2</div><div class="t15 font-bold leading-snug">Joe<br/>Pide</div></div>
+            <div class="rounded-2xl border border-[#E6E8EE] p-2.5"><div class="text-xs font-bold text-red">ห้อง 3</div><div class="t15 font-bold leading-snug">Earth<br/>Kwang</div></div>
+          </div>
+        </div>
+        <label class="block space-y-1.5">
+          <span class="t13 font-semibold text-mute">เลขห้องของฉัน (บันทึกในเครื่องนี้)</span>
+          <input id="my-room" type="text" inputmode="numeric" placeholder="เช่น 1208" class="field" />
         </label>
         <div class="grid grid-cols-3 gap-2">
-          <button data-act="nav" data-node="hotel" class="h-12 rounded-xl bg-sky-500 text-slate-950 font-bold text-sm">🧭 นำทาง</button>
-          <button data-act="hotelcard" class="h-12 rounded-xl bg-amber-400 text-slate-950 font-bold text-sm">🚕 ป้ายคนขับ</button>
-          <a href="tel:+862152711555" class="h-12 rounded-xl bg-slate-800 font-bold text-sm flex items-center justify-center">☎️ โทร</a>
+          <button data-act="nav" data-node="hotel" class="btn btn-line px-2 text-sm"><i data-ic="nav" data-s="18"></i>นำทาง</button>
+          <button data-act="hotelcard" class="btn btn-red px-2 text-sm"><i data-ic="car" data-s="18"></i>ป้ายคนขับ</button>
+          <a href="tel:+862152711555" class="btn btn-line px-2 text-sm"><i data-ic="phone" data-s="18"></i>โทร</a>
         </div>
       </section>
 
-      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-lg font-black text-indigo-300">✈️ เที่ยวบิน Juneyao Air</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-          <div class="rounded-xl bg-slate-950 border border-blue-500/40 p-3">
-            <div class="font-bold text-blue-300">🛫 ขาไป • จ. 26 ต.ค.</div>
-            <div class="text-lg font-black">HO1358 • 01:45 → 06:55</div>
-            <div class="text-slate-400">สุวรรณภูมิ (BKK) → ผู่ตง (PVG T2)</div>
-            <div class="text-emerald-300 font-bold mt-1">⏰ นัดเจอ อา. 25 ต.ค. 22:45 (เวลาไทย)</div>
+      <section class="card p-4 space-y-1">
+        <h2 class="sec-title pb-1.5">เที่ยวบิน · Juneyao Air</h2>
+        <div class="row-div">
+          <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3 items-center py-2.5">
+            <span class="text-xs font-bold text-[#2457D6] bg-[#EAF0FF] rounded-[10px] py-1.5 text-center">ขาไป</span>
+            <span class="flex flex-col"><span class="t15 font-bold">HO1358 · จ. 26 ต.ค.</span><span class="text-sm text-ink2 tnum">BKK 01:45 → PVG T2 06:55</span></span>
           </div>
-          <div class="rounded-xl bg-slate-950 border border-emerald-500/40 p-3">
-            <div class="font-bold text-emerald-300">🛬 ขากลับ • พฤ. 29 ต.ค.</div>
-            <div class="text-lg font-black">HO1357 • 21:00 → 00:45 (+1)</div>
-            <div class="text-slate-400">ผู่ตง (PVG T2) → สุวรรณภูมิ (BKK)</div>
-            <div class="text-amber-300 font-bold mt-1">🧳 ออกจาก รร. 17:15 • เคาน์เตอร์ปิด 20:00</div>
+          <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3 items-center py-2.5">
+            <span class="text-xs font-bold text-[#047857] bg-[#DDF6EC] rounded-[10px] py-1.5 text-center">ขากลับ</span>
+            <span class="flex flex-col"><span class="t15 font-bold">HO1357 · พฤ. 29 ต.ค.</span><span class="text-sm text-ink2 tnum">PVG T2 21:00 → BKK 00:45 (+1)</span></span>
           </div>
         </div>
-        <p class="text-xs text-slate-400">โหลดใต้เครื่อง 23 kg + ถือขึ้น 5 kg • เลข PNR ดูในอีเมลตั๋ว (ไม่แสดงบนเว็บเพื่อความปลอดภัย)</p>
-      </section>
-
-      <section id="info-checklist" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <h2 class="text-lg font-black text-amber-300">✅ เช็กลิสต์ก่อนบิน</h2>
-          <span id="chk-count" class="text-sm font-bold text-slate-300"></span>
+        <div class="flex gap-2 items-start rounded-[14px] bg-[#FFF3D6] text-[#5C3A10] px-3 py-2.5 t13 mt-1.5">
+          <i data-ic="clock" data-s="16" class="mt-0.5"></i>
+          <span>นัดเจอ อา. 25 ต.ค. 22:45 (เวลาไทย) ที่สุวรรณภูมิ · วันกลับออกจาก รร. 17:15 · เคาน์เตอร์ปิด 20:00</span>
         </div>
-        <p class="text-xs text-slate-400">ติ๊กแล้วบันทึกไว้ในมือถือเครื่องนี้</p>
-        <div id="checklist" class="space-y-2"></div>
+        <p class="t13 text-mute pt-1.5">โหลดใต้เครื่อง 23 kg + ถือขึ้น 5 kg · เลข PNR ดูในอีเมลตั๋ว (ไม่แสดงบนเว็บเพื่อความปลอดภัย)</p>
       </section>
 
-      <section id="info-offline" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h2 class="text-lg font-black text-sky-300">📲 ติดตั้งลงหน้าโฮม & ใช้แบบ offline</h2>
-        <ol class="text-sm text-slate-300 space-y-1 list-decimal pl-5">
-          <li><b>iPhone:</b> เปิดใน Safari ➜ ปุ่มแชร์ ⬆️ ➜ <b>เพิ่มไปยังหน้าจอโฮม</b></li>
-          <li><b>Android:</b> เปิดใน Chrome ➜ เมนู ⋮ ➜ <b>ติดตั้งแอป / เพิ่มลงในหน้าจอหลัก</b></li>
-          <li>เปิดแอปจากไอคอนหน้าโฮม แล้วกดปุ่มด้านล่าง <b>ตอนต่อ Wi-Fi ที่ไทย</b></li>
-        </ol>
-        <button data-act="offline" id="btn-offline" class="w-full h-12 rounded-xl bg-sky-500 text-slate-950 font-black">⬇️ ดาวน์โหลดแผนที่ + ตัวสแกนไว้ใช้ offline (~15 MB)</button>
-        <div id="offline-status" class="text-sm text-slate-300"></div>
-        <div class="text-xs text-slate-400 space-y-1">
-          <p>📶 ทีมใช้โรมมิ่งซิมไทย: LINE / Google / แอปนี้ใช้ได้ปกติ <b>แต่ Wi-Fi โรงแรมและร้านในจีนอยู่หลัง Firewall</b> ถ้าเปิดอะไรไม่ขึ้นให้ปิด Wi-Fi แล้วใช้โรมมิ่ง</p>
-          <p>🛬 ถึงจีนแล้ว: ปิด Wi-Fi ➜ เปิด ipinfo.io ควรเห็นประเทศ TH = โรมมิ่งทำงานปกติ</p>
-        </div>
-      </section>
-
-      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <section class="card p-4">
         <details>
-          <summary class="flex items-center justify-between font-black text-lg text-amber-300">🎟️ ตั๋ว & การจอง <span class="text-sm text-slate-400">แตะเพื่อดู ▾</span></summary>
-          <div id="booking-list" class="space-y-2 mt-3"></div>
+          <summary class="flex items-center justify-between gap-2 min-h-[44px]"><span class="sec-title">ตั๋ว &amp; การจอง</span><span class="inline-flex items-center gap-1 t13 text-mute">แตะเพื่อดู<i data-ic="chevd" data-s="16" class="chev-down"></i></span></summary>
+          <div id="booking-list" class="row-div mt-1"></div>
         </details>
       </section>
 
-      <p class="text-center text-xs text-slate-500">STUDIO MTRX • Shanghai R&amp;D 2026 • Team Edition</p>
+      <section id="info-checklist" class="card p-4 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="sec-title">เช็กลิสต์ก่อนบิน</h2>
+          <span id="chk-count" class="text-sm font-bold text-red tnum"></span>
+        </div>
+        <div class="bar"><i id="chk-bar" style="width:0"></i></div>
+        <p class="t13 text-mute">ติ๊กแล้วบันทึกไว้ในมือถือเครื่องนี้</p>
+        <div id="checklist" class="row-div"></div>
+      </section>
+
+      <section id="info-offline" class="card-dark p-[18px] space-y-3">
+        <div class="flex gap-3 items-start">
+          <span class="icb bg-white/10"><i data-ic="cloud" data-s="22"></i></span>
+          <div class="space-y-0.5">
+            <h2 class="sec-title">ติดตั้งลงหน้าโฮม &amp; ใช้แบบ offline</h2>
+            <p class="text-sm text-dim">แผนที่รอบทุกจุด + ตัวสแกนภาษาจีน (~15 MB)</p>
+          </div>
+        </div>
+        <ol class="text-sm text-[#DADCE3] space-y-1 list-decimal pl-5">
+          <li><b class="text-white">iPhone:</b> เปิดใน Safari ➜ ปุ่มแชร์ ➜ <b class="text-white">เพิ่มไปยังหน้าจอโฮม</b></li>
+          <li><b class="text-white">Android:</b> เปิดใน Chrome ➜ เมนู ⋮ ➜ <b class="text-white">ติดตั้งแอป / เพิ่มลงในหน้าจอหลัก</b></li>
+          <li>เปิดแอปจากไอคอนหน้าโฮม แล้วกดปุ่มด้านล่าง <b class="text-white">ตอนต่อ Wi-Fi ที่ไทย</b></li>
+        </ol>
+        <button data-act="offline" id="btn-offline" class="btn btn-white w-full min-h-[52px]"><i data-ic="download" data-s="20"></i>ดาวน์โหลดไว้ใช้ offline</button>
+        <div id="offline-status" class="text-sm text-[#DADCE3]"></div>
+        <div class="t13 text-dim space-y-1">
+          <p>ทีมใช้โรมมิ่งซิมไทย: LINE / Google / แอปนี้ใช้ได้ปกติ <b class="text-white">แต่ Wi-Fi โรงแรมและร้านในจีนอยู่หลัง Firewall</b> ถ้าเปิดอะไรไม่ขึ้นให้ปิด Wi-Fi แล้วใช้โรมมิ่ง</p>
+          <p>ถึงจีนแล้ว: ปิด Wi-Fi ➜ เปิด ipinfo.io ควรเห็นประเทศ TH = โรมมิ่งทำงานปกติ</p>
+        </div>
+      </section>
+
+      <p class="text-center text-xs text-mute">STUDIO MTRX · Shanghai R&amp;D 2026 · Team Edition</p>
     </div>
   </main>
 
   <!-- Floating back-to-hotel -->
-  <button data-act="hotelsheet" class="fab fixed right-4 z-30 h-12 px-4 rounded-full bg-amber-400 text-slate-950 font-black shadow-xl">🏨 กลับ รร.</button>
+  <button data-act="hotelsheet" class="fab fixed right-4 z-30 h-[52px] pl-4 pr-5 rounded-full bg-[#D8392B] text-white font-bold inline-flex items-center gap-2"><i data-ic="bed" data-s="22"></i>กลับ รร.</button>
 
   <!-- Toast -->
-  <div id="toast" hidden role="status" class="toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-3 shadow-xl text-center"></div>
+  <div id="toast" hidden role="status" class="toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-2xl font-semibold px-4 py-3 shadow-xl text-center"></div>
 
   <!-- Bottom navigation -->
-  <nav class="fixed bottom-0 inset-x-0 z-40 bg-slate-950 border-t border-slate-800 safe-b">
-    <div class="max-w-3xl mx-auto grid grid-cols-5">
-      <button data-act="tab" data-tab="today" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">🏠</span>วันนี้</button>
-      <button data-act="tab" data-tab="trip" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">🗺️</span>ทริป</button>
-      <button data-act="tab" data-tab="cards" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">🚕</span>ป้ายจีน</button>
-      <button data-act="tab" data-tab="translate" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">📷</span>แปล</button>
-      <button data-act="tab" data-tab="info" class="navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold"><span class="text-xl">ℹ️</span>ข้อมูล</button>
+  <nav aria-label="เมนูหลัก" class="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-[#E6E8EE] safe-b">
+    <div class="max-w-3xl mx-auto grid grid-cols-5 px-1.5">
+      <button data-act="tab" data-tab="today" class="navbtn"><span class="nb"><i data-ic="home" data-s="22"></i></span>วันนี้</button>
+      <button data-act="tab" data-tab="trip" class="navbtn"><span class="nb"><i data-ic="map" data-s="22"></i></span>ทริป</button>
+      <button data-act="tab" data-tab="cards" class="navbtn"><span class="nb"><i data-ic="car" data-s="22"></i></span>ป้ายจีน</button>
+      <button data-act="tab" data-tab="translate" class="navbtn"><span class="nb"><i data-ic="translate" data-s="22"></i></span>แปล</button>
+      <button data-act="tab" data-tab="info" class="navbtn"><span class="nb"><i data-ic="info" data-s="22"></i></span>ข้อมูล</button>
     </div>
   </nav>
 
   <!-- Hotel bottom sheet -->
-  <div id="hotel-sheet" hidden class="fixed inset-0 z-50 bg-black/60 flex items-end" data-act="closesheet">
-    <div class="w-full max-w-3xl mx-auto bg-slate-900 border-t border-slate-700 rounded-t-3xl p-5 space-y-3 safe-b" data-stop>
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-black">🏨 กลับโรงแรม Yitel Collection</h2>
-        <button data-act="closesheet" class="h-10 px-3 rounded-lg bg-slate-800 font-bold">✕</button>
+  <div id="hotel-sheet" hidden class="fixed inset-0 z-50 bg-black/50 flex items-end" data-act="closesheet">
+    <div class="w-full max-w-3xl mx-auto bg-white rounded-t-[28px] p-5 space-y-3.5 safe-b" data-stop>
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="sec-title flex items-center gap-2"><i data-ic="bed" data-s="22" class="text-red"></i>กลับโรงแรม Yitel Collection</h2>
+        <button data-act="closesheet" aria-label="ปิด" class="icb btn-soft"><i data-ic="close" data-s="20"></i></button>
       </div>
-      <div class="zh text-amber-300 font-bold">和颐至尚酒店(上海火车站南广场店) • 上海市静安区天目西路511号</div>
-      <button data-act="hotelcard" class="w-full h-14 rounded-2xl bg-amber-400 text-slate-950 font-black text-lg">🚕 โชว์ป้ายให้คนขับ</button>
+      <div class="zh t15 font-semibold text-ink2">和颐至尚酒店(上海火车站南广场店) · 上海市静安区天目西路511号</div>
+      <button data-act="hotelcard" class="btn btn-red w-full min-h-[56px] t17 rounded-2xl"><i data-ic="car" data-s="22"></i>โชว์ป้ายให้คนขับ</button>
       <div class="grid grid-cols-3 gap-2">
-        <button data-act="nav" data-node="hotel" class="h-12 rounded-xl bg-sky-500 text-slate-950 font-bold text-sm">🧭 Amap</button>
-        <button data-act="copy" data-text="上海市静安区天目西路511号 和颐至尚酒店(上海火车站南广场店)" class="h-12 rounded-xl bg-slate-800 font-bold text-sm">📋 Copy ที่อยู่</button>
-        <a href="tel:+862152711555" class="h-12 rounded-xl bg-slate-800 font-bold text-sm flex items-center justify-center">☎️ โทร</a>
+        <button data-act="nav" data-node="hotel" class="btn btn-line px-2 text-sm"><i data-ic="nav" data-s="18"></i>Amap</button>
+        <button data-act="copy" data-text="上海市静安区天目西路511号 和颐至尚酒店(上海火车站南广场店)" class="btn btn-line px-2 text-sm"><i data-ic="copy" data-s="18"></i>คัดลอก</button>
+        <a href="tel:+862152711555" class="btn btn-line px-2 text-sm"><i data-ic="phone" data-s="18"></i>โทร</a>
       </div>
-      <p id="sheet-room" class="text-sm text-slate-400"></p>
+      <p id="sheet-room" class="text-sm text-mute"></p>
     </div>
   </div>
 
-  <!-- Full-screen card (high contrast for drivers / staff) -->
-  <div id="card-modal" hidden class="fixed inset-0 z-50 bg-white text-slate-950 flex flex-col safe-t safe-b">
-    <div class="flex items-center justify-between gap-2 p-3 border-b border-slate-200">
-      <span id="card-label" class="text-sm font-bold text-slate-600 truncate"></span>
-      <button data-act="closecard" class="h-11 px-4 rounded-xl bg-slate-900 text-white font-bold shrink-0">✕ ปิด</button>
+  <!-- Full-screen card for drivers / staff: white background, black text -->
+  <div id="card-modal" hidden class="fixed inset-0 z-50 bg-white text-black flex flex-col safe-t safe-b">
+    <div class="flex items-center gap-3 px-4 pt-4 pb-2">
+      <button data-act="closecard" aria-label="ปิดป้าย" class="w-12 h-12 shrink-0 rounded-2xl bg-[#F1F3F8] flex items-center justify-center"><i data-ic="close" data-s="22"></i></button>
+      <span id="card-label" class="t13 font-semibold text-mute truncate"></span>
     </div>
-    <div class="flex-1 overflow-y-auto p-5 flex flex-col justify-center gap-4 text-center">
-      <div id="card-greet" lang="zh-CN" class="zh text-xl font-bold text-slate-700"></div>
-      <div id="card-cn" lang="zh-CN" class="zh text-4xl sm:text-6xl font-black leading-tight break-words"></div>
-      <div id="card-addr" lang="zh-CN" class="zh text-2xl sm:text-3xl font-black text-slate-800 break-words"></div>
-      <div id="card-py" class="text-base text-indigo-700 font-semibold"></div>
-      <div id="card-th" class="text-lg font-bold text-emerald-800 bg-emerald-50 rounded-2xl p-3"></div>
+    <div class="flex-1 overflow-y-auto px-6 py-4 flex flex-col justify-center gap-5">
+      <div id="card-greet" lang="zh-CN" class="zh text-2xl font-bold"></div>
+      <div id="card-cn" lang="zh-CN" class="zh text-[2.5rem] sm:text-6xl font-black leading-tight break-words"></div>
+      <div id="card-addr" lang="zh-CN" class="zh text-[1.625rem] sm:text-4xl font-bold leading-snug break-words"></div>
+      <div class="h-0.5 bg-black rounded"></div>
+      <div id="card-py" class="t15 font-semibold text-ink2"></div>
+      <div id="card-th" class="t15 text-ink2"></div>
     </div>
-    <div class="grid grid-cols-3 gap-2 p-3 border-t border-slate-200">
-      <button data-act="speakcard" class="h-14 rounded-2xl bg-emerald-500 text-slate-950 font-black">🔊 พูด</button>
-      <button data-act="copycard" class="h-14 rounded-2xl bg-slate-200 font-bold">📋 Copy</button>
-      <button id="card-nav" data-act="navcard" class="h-14 rounded-2xl bg-sky-500 text-slate-950 font-bold">🧭 Amap</button>
+    <div class="px-4 pt-3 pb-5 space-y-2.5">
+      <button data-act="speakcard" class="btn btn-red w-full min-h-[60px] t17 rounded-[18px]"><i data-ic="volume" data-s="24"></i>เปิดเสียงภาษาจีนให้ฟัง</button>
+      <div class="flex gap-2.5">
+        <button id="card-nav" data-act="navcard" class="btn btn-line flex-1 min-h-[56px] rounded-2xl"><i data-ic="nav" data-s="20"></i>เปิด Amap</button>
+        <button data-act="copycard" class="btn btn-line flex-1 min-h-[56px] rounded-2xl"><i data-ic="copy" data-s="20"></i>คัดลอก</button>
+      </div>
     </div>
   </div>
 
@@ -409,7 +596,7 @@
     // Times are Shanghai local time (UTC+8). '25:30' = 01:30 the next morning.
     const DAYS = [
       {
-        date: '2026-10-26', dow: 'จ.', color: '#3b82f6', title: 'Experiential Retail • Animatronics • MAP & ไฟริมน้ำ', lobby: null,
+        date: '2026-10-26', dow: 'จ.', color: '#2457D6', tint: '#EAF0FF', dot: '#7EA6FF', title: 'Experiential Retail • Animatronics • MAP & ไฟริมน้ำ', lobby: null,
         stops: [
           { node: 'pvg', start: '06:55', end: '08:30', title: 'ถึง PVG T2 • ผ่าน ตม. • รับกระเป๋า',
             move: '✈️ HO1358 ออก BKK 01:45 → ถึง PVG T2 06:55',
@@ -438,14 +625,14 @@
         ]
       },
       {
-        date: '2026-10-27', dow: 'อ.', color: '#a855f7', title: 'Shanghai Disneyland • ช่วงเทศกาลฮาโลวีน', lobby: '07:30',
+        date: '2026-10-27', dow: 'อ.', color: '#8A2BD9', tint: '#F3E9FF', dot: '#C38BFF', title: 'Shanghai Disneyland • ช่วงเทศกาลฮาโลวีน', lobby: '07:30',
         stops: [
           { node: 'hotel', start: '07:30', end: '08:20', title: 'นัดล็อบบี้ ออกไป Disneyland',
-            move: '🚐 DiDi 6 ที่นั่ง • ~30 กม. (~50 นาที) • ลงที่ West Hub (จุดลงรถแอป)',
             why: 'พกพาสปอร์ตตัวจริงทุกคน (ตั๋วผูกกับพาสปอร์ต) • พาวเวอร์แบงก์ • เปิดแอป Shanghai Disney Resort',
             tip: 'ไปถึงตอนเปิดพาร์ค — คิว Zootopia ช่วงสายรอ 2–3 ชม.',
             food: { th: 'อาหารเช้าร้านสะดวกซื้อหน้า รร.', cn: '全家便利店' } },
           { node: 'disney', start: '08:30', end: '16:30', title: 'Disneyland: Zootopia + Pirates',
+            move: '🚐 DiDi 6 ที่นั่ง • ~30 กม. (~50 นาที) • ลงที่ West Hub (จุดลงรถแอป)',
             why: 'Zootopia: Hot Pursuit (Trackless Ride + Animatronics — กด Premier Access ในแอป) • Pirates of the Caribbean (IMAX Dome + เรือแม่เหล็ก)' },
           { node: 'disney', start: '16:30', end: '17:45', title: 'มื้อเย็นที่ Disneytown',
             why: 'ออกมากินแล้วกลับเข้าพาร์คได้ (โชว์พาสปอร์ตตัวจริง)',
@@ -459,7 +646,7 @@
         ]
       },
       {
-        date: '2026-10-28', dow: 'พ.', color: '#f59e0b', title: 'M50 • Bvlgari Kaleidos • West Bund • ERA 2 • INS', lobby: '10:15',
+        date: '2026-10-28', dow: 'พ.', color: '#B45309', tint: '#FFF3D6', dot: '#FFB020', title: 'M50 • Bvlgari Kaleidos • West Bund • ERA 2 • INS', lobby: '10:15',
         stops: [
           { node: 'm50', start: '10:30', end: '12:00', title: 'M50 Creative Park (Island6 & แกลเลอรี)',
             move: '🚶 เดินจาก รร. ~900 ม. (10–12 นาที)',
@@ -494,7 +681,7 @@
         ]
       },
       {
-        date: '2026-10-29', dow: 'พฤ.', color: '#10b981', title: 'Urban Planning 3D • Pop Mart • Fotografiska • บินกลับ', lobby: '09:00',
+        date: '2026-10-29', dow: 'พฤ.', color: '#047857', tint: '#DDF6EC', dot: '#34D399', title: 'Urban Planning 3D • Pop Mart • Fotografiska • บินกลับ', lobby: '09:00',
         stops: [
           { node: 'hotel', start: '09:00', end: '09:15', title: 'เช็กเอาต์ + ฝากกระเป๋าที่ล็อบบี้',
             why: 'ฝากกระเป๋าไว้ที่ front desk ถึง 17:15 (การ์ดคำพูดอยู่ในแท็บ ป้ายจีน > โรงแรม)' },
@@ -520,9 +707,9 @@
             why: 'ห้างกึ่งสวนสาธารณะใต้ดินริมคลอง • กินให้เสร็จแล้วกลับ รร.',
             food: { th: 'ร้านในห้าง Suhewan MixC', cn: '苏河湾万象天地' } },
           { node: 'hotel', start: '17:15', end: '17:30', title: 'รับกระเป๋า → สนามบิน PVG T2',
-            move: '🚐 DiDi/รถตู้ ~46 กม. • 60–90 นาทีช่วงเร่งด่วน',
             why: 'ออกตรงเวลา! เคาน์เตอร์เช็กอินปิด 20:00' },
           { node: 'pvg', start: '18:45', end: '21:00', title: 'เช็กอิน HO1357 • บินกลับ 21:00',
+            move: '🚐 DiDi/รถตู้ ~46 กม. • 60–90 นาทีช่วงเร่งด่วน',
             why: 'ถึงสุวรรณภูมิ 00:45 (ศ. 30 ต.ค.)' }
         ]
       }
@@ -537,9 +724,10 @@
       home: Date.UTC(2026, 9, 30, 0 - 7, 45)     // Fri 30 Oct 00:45 Bangkok
     };
 
+    // [icon, label, Amap search word, tile tint, icon color]
     const NEAR = [
-      ['🚻', 'ห้องน้ำ', '卫生间'], ['🏪', 'ร้านสะดวกซื้อ', '便利店'], ['🍜', 'ร้านอาหาร', '餐厅'],
-      ['🚇', 'รถไฟใต้ดิน', '地铁站'], ['💊', 'ร้านยา', '药店'], ['🔋', 'เช่าพาวเวอร์แบงก์', '共享充电宝']
+      ['wc', 'ห้องน้ำ', '卫生间', '#EAF0FF', '#1F4BB8'], ['bag', 'ร้านสะดวกซื้อ', '便利店', '#DDF6EC', '#047857'], ['bowl', 'ร้านอาหาร', '餐厅', '#FFF3D6', '#A04A00'],
+      ['train', 'รถไฟใต้ดิน', '地铁站', '#F3E9FF', '#7A22C4'], ['cross', 'ร้านยา', '药店', '#FDECE9', '#C2311F'], ['battery', 'พาวเวอร์แบงก์', '共享充电宝', '#F1F3F8', '#3A3F4B']
     ];
 
     const PHRASE_CATS = [['didi', '🚐 DiDi & เดินทาง'], ['food', '🍜 สั่งอาหาร'], ['hotel', '🏨 โรงแรม'], ['sos', '🆘 ห้องน้ำ & ฉุกเฉิน']];
@@ -709,6 +897,55 @@
     // ================================================================
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // Line icons (24×24, stroke = currentColor). Static markup uses <i data-ic="name" data-s="20">, filled at boot.
+    const IC = {
+      home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
+      map: '<path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13"/><path d="M15 6.5v13"/>',
+      car: '<path d="M5 11l1.5-4.2A2 2 0 0 1 8.4 5.5h7.2a2 2 0 0 1 1.9 1.3L19 11"/><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M6 17v2"/><path d="M18 17v2"/>',
+      translate: '<path d="M4 5h8"/><path d="M8 3v2"/><path d="M10.5 5c-.8 3.5-3 6.3-6 8"/><path d="M6 8.5c1 1.8 2.6 3.3 4.5 4.3"/><path d="M13 21l4-9 4 9"/><path d="M14.5 18h5"/>',
+      info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+      bed: '<path d="M3 18V7"/><path d="M3 14h18v4"/><path d="M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.6"/>',
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      nav: '<path d="M12 2 19 21l-7-4-7 4 7-19z"/>',
+      route: '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/>',
+      plane: '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+      volume: '<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+      copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h9"/>',
+      phone: '<path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+      chev: '<path d="M9 6l6 6-6 6"/>',
+      chevd: '<path d="M6 9l6 6 6-6"/>',
+      close: '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+      search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+      keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01"/><path d="M10 10h.01"/><path d="M14 10h.01"/><path d="M18 10h.01"/><path d="M7 14h10"/>',
+      book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z"/><path d="M4 19a2 2 0 0 1 2-2h13"/>',
+      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      download: '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+      cloud: '<path d="M7 18a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.7 9 4.5 4.5 0 0 1 17 18"/><path d="M12 12v8"/><path d="m9 17 3 3 3-3"/>',
+      shield: '<path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3z"/><path d="M12 8v5"/><path d="M12 16h.01"/>',
+      bag: '<path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
+      bowl: '<path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-1.5 1-2 1-3.5"/><path d="M12 7c0-1.5 1-2 1-3.5"/><path d="M16 7c0-1.5 1-2 1-3.5"/>',
+      train: '<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14"/><path d="M8 21l2-4"/><path d="M16 21l-2-4"/><path d="M9 14h.01"/><path d="M15 14h.01"/>',
+      cross: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+      battery: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 11v2"/><path d="M11 9.5 9 12h4l-2 2.5"/>',
+      food: '<path d="M7 3v8"/><path d="M5 3v4a2 2 0 0 0 4 0V3"/><path d="M7 11v10"/><path d="M17 3c-2 0-3 2-3 5s1 4 3 4v9"/>',
+      bulb: '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/>',
+      pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+      expand: '<path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/>',
+      mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/>',
+      image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+      stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
+      zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>',
+      moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+      ext: '<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
+      alert: '<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>'
+    };
+    const ic = (name, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0">${IC[name] || ''}</svg>`;
+    const fillIcons = root => root.querySelectorAll('i[data-ic]').forEach(el => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 20); });
+    // Some data strings start with an emoji; the UI drops it and shows a line icon instead
+    const noEmo = s => String(s ?? '').replace(/^[^\p{L}\p{N}"(]+/u, '');
+    const moveIcon = m => /^🚶/.test(m) ? 'route' : /^✈/.test(m) ? 'plane' : 'car';
     const store = {
       get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
       set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -732,14 +969,15 @@
       if (h) return `${h} ชม. ${mm} นาที`;
       return `${mm} นาที`;
     }
-    const dayLabel = d => `Day ${DAYS.indexOf(d) + 1} • ${d.dow} ${+d.date.slice(8)} ต.ค.`;
+    const dayLabel = d => `Day ${DAYS.indexOf(d) + 1} · ${d.dow} ${+d.date.slice(8)} ต.ค.`;
+    const thClock = ms => shClock(ms - 3600e3);
 
     const ALL = DAYS.flatMap((d, di) => d.stops.map((s, si) => ({ ...s, di, si, t0: shMs(d.date, s.start), t1: shMs(d.date, s.end) })));
 
     function toast(msg, ok = true, ms = 2400) {
       const t = $('toast');
       t.textContent = msg;
-      t.className = `toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-xl font-bold px-4 py-3 shadow-xl text-center ${ok ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white'}`;
+      t.className = `toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-2xl font-semibold px-4 py-3 shadow-xl text-center text-white ${ok ? 'bg-[#16181D]' : 'bg-[#D8392B]'}`;
       t.hidden = false;
       clearTimeout(toast._t);
       toast._t = setTimeout(() => { t.hidden = true; }, ms);
@@ -798,7 +1036,7 @@
     function showWebMapOffer(url) {
       const t = $('toast');
       t.innerHTML = `ยังไม่ได้ติดตั้ง Amap? <a href="${esc(url)}" target="_blank" rel="noopener" class="underline">แตะเพื่อเปิดแผนที่บนเว็บ</a>`;
-      t.className = 'toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-xl font-bold px-4 py-3 shadow-xl text-center bg-sky-400 text-slate-950';
+      t.className = 'toast fixed left-4 right-4 z-50 max-w-md mx-auto rounded-2xl font-semibold px-4 py-3 shadow-xl text-center text-white bg-[#16181D]';
       t.hidden = false;
       clearTimeout(toast._t);
       toast._t = setTimeout(() => { t.hidden = true; }, 7000);
@@ -840,11 +1078,11 @@
 
     function placeCard(id) {
       const n = NODES[id];
-      openCard({ label: `🚕 ไปที่: ${n.name}`, greet: '师傅您好，请送我们去：', cn: n.cn, addr: n.addr, th: `ช่วยไปส่งพวกเราที่ ${n.name}`, node: id });
+      openCard({ label: `ไปที่: ${n.name}`, greet: '师傅您好，请送我们去：', cn: n.cn, addr: n.addr, th: `ช่วยไปส่งพวกเราที่ ${n.name}`, node: id });
     }
     function hotelCard() {
       const n = NODES.hotel;
-      openCard({ label: '🏨 กลับโรงแรม', greet: '师傅您好，请送我们回酒店：', cn: n.cn, addr: n.addr + '（不是火车站南广场）',
+      openCard({ label: 'กลับโรงแรม', greet: '师傅您好，请送我们回酒店：', cn: n.cn, addr: n.addr + '（不是火车站南广场）',
         th: 'ช่วยไปส่งพวกเรากลับโรงแรม Yitel Collection (No. 511 Tianmu West Rd.)', node: 'hotel' });
     }
 
@@ -918,7 +1156,8 @@
       TABS.forEach(x => { $('tab-' + x).hidden = x !== t; });
       document.querySelectorAll('.navbtn').forEach(b => {
         const on = b.dataset.tab === t;
-        b.className = `navbtn h-16 flex flex-col items-center justify-center gap-0.5 text-xs font-bold ${on ? 'text-amber-300' : 'text-slate-400'}`;
+        b.classList.toggle('on', on);
+        if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
       });
       if (t !== 'translate') { stopCamera(); stopMic(); }
       if (t === 'trip') ensureMap();
@@ -930,44 +1169,125 @@
     // ================================================================
     // STOP CARD (shared by Today + Trip)
     // ================================================================
+    const isBase = node => node === 'hotel' || node === 'pvg';
+    const addrText = n => n.addr ? n.cn + ' ' + n.addr : n.cn;
+    function foodRow(s, dark = false) {
+      return `
+        <div class="flex items-center justify-between gap-2 rounded-[14px] px-3 py-2 ${dark ? 'bg-white/10 text-[#EDEEF2]' : 'bg-[#FFF3D6] text-[#7A3E00]'}">
+          <span class="flex items-start gap-2 text-sm font-semibold">${ic('food', 16)}<span>${esc(s.food.th)}</span></span>
+          <button data-act="search" data-q="${esc(s.food.cn)}" class="shrink-0 min-h-[40px] px-3 rounded-[10px] text-sm font-bold ${dark ? 'bg-white/15 text-white' : 'bg-white text-[#7A3E00]'}">หาร้าน</button>
+        </div>`;
+    }
+    function stopActions(s, dark = false) {
+      const n = NODES[s.node];
+      return `
+        <div class="grid grid-cols-[1fr_1fr_48px] gap-2">
+          <button data-act="place" data-node="${s.node}" class="btn ${dark ? 'btn-white' : 'btn-red'} px-2">${ic('car', 18)}ป้ายคนขับ</button>
+          <button data-act="nav" data-node="${s.node}" class="btn ${dark ? 'btn-glass' : 'btn-line'} px-2">${ic('nav', 18)}นำทาง</button>
+          <button data-act="copy" data-text="${esc(addrText(n))}" aria-label="คัดลอกชื่อและที่อยู่ภาษาจีน" class="btn ${dark ? 'btn-glass' : 'btn-line'} px-0">${ic('copy', 18)}</button>
+        </div>`;
+    }
     function stopCard(s, opts = {}) {
       const n = NODES[s.node];
       const day = DAYS[s.di];
       return `
-        <div ${opts.id ? `id="${opts.id}"` : ''} class="rounded-2xl bg-slate-900 border ${opts.hl ? 'border-amber-400' : 'border-slate-800'} p-4 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-sm font-black px-2.5 py-1 rounded-lg text-white" style="background:${day.color}">${hm(s.start)}–${hm(s.end)}</span>
-            ${opts.badge ? `<span class="text-xs font-bold text-amber-300">${opts.badge}</span>` : ''}
-          </div>
-          <h3 class="text-lg font-black leading-snug">${n.icon} ${esc(s.title)}</h3>
-          <div class="zh text-amber-300 font-bold">${esc(n.cn)}</div>
-          ${s.move ? `<div class="text-sm font-semibold text-sky-300">${esc(s.move)}</div>` : ''}
-          ${s.why ? `<div class="text-sm text-slate-300">🎯 ${esc(s.why)}</div>` : ''}
-          ${s.tip ? `<div class="text-sm text-amber-200 bg-amber-500/10 rounded-lg px-3 py-2">⚠️ ${esc(s.tip)}</div>` : ''}
-          ${s.food ? `
-            <div class="flex items-center justify-between gap-2 text-sm bg-emerald-950/40 border border-emerald-800/50 rounded-lg px-3 py-2">
-              <span class="text-emerald-200">🍴 ${esc(s.food.th)}</span>
-              <button data-act="search" data-q="${esc(s.food.cn)}" class="shrink-0 h-10 px-3 rounded-lg bg-emerald-600/40 text-emerald-100 font-bold">หาร้าน</button>
+        <div class="card p-4 space-y-3" ${opts.live ? `style="box-shadow:0 0 0 2px ${day.color}"` : ''}>
+          ${opts.kicker ? `
+            <div class="flex items-center justify-between gap-2">
+              <span class="t13 font-bold" style="color:${day.color}">${opts.kicker}</span>
+              ${opts.note ? `<span class="t13 font-semibold text-mute">${opts.note}</span>` : ''}
             </div>` : ''}
-          <div class="grid grid-cols-3 gap-2 pt-1">
-            <button data-act="nav" data-node="${s.node}" class="h-12 rounded-xl bg-sky-500 text-slate-950 font-bold text-sm">🧭 นำทาง</button>
-            <button data-act="place" data-node="${s.node}" class="h-12 rounded-xl bg-amber-400 text-slate-950 font-bold text-sm">🚕 ป้ายคนขับ</button>
-            <button data-act="copy" data-text="${esc(n.addr ? n.cn + ' ' + n.addr : n.cn)}" class="h-12 rounded-xl bg-slate-800 font-bold text-sm">📋 Copy</button>
+          <div class="flex gap-3 items-start">
+            ${opts.num ? `<span class="num" style="background:${isBase(s.node) ? '#16181D' : day.color}">${s.si + 1}</span>` : ''}
+            <div class="min-w-0 flex-1 space-y-0.5">
+              ${opts.kicker ? '' : `<div class="flex items-center gap-2"><span class="t13 font-bold tnum" style="color:${day.color}">${hm(s.start)}–${hm(s.end)}</span>${opts.live ? `<span class="tl-now" style="color:${day.color};background:${day.tint}">ตอนนี้</span>` : ''}</div>`}
+              <h3 class="t17 font-bold leading-snug">${esc(s.title)}</h3>
+              <div class="zh text-sm text-mute">${esc(n.cn)}</div>
+              ${s.why ? `<p class="text-sm text-ink2 pt-1">${esc(s.why)}</p>` : ''}
+            </div>
           </div>
-          ${n.links && opts.links ? `<div class="flex flex-wrap gap-3 pt-1">${n.links.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="text-sm text-sky-300 underline">${esc(l)} ↗</a>`).join('')}</div>` : ''}
+          ${opts.move && s.move ? `<div class="flex"><span class="chip chip-soft">${ic(moveIcon(s.move), 16)}${esc(noEmo(s.move))}</span></div>` : ''}
+          ${s.tip ? `<div class="flex gap-2 items-start rounded-[14px] bg-[#EAF0FF] text-[#1F4BB8] px-3 py-2 text-sm font-semibold">${ic('bulb', 16)}<span>${esc(s.tip)}</span></div>` : ''}
+          ${s.food ? foodRow(s) : ''}
+          ${stopActions(s)}
+          ${n.links && opts.links ? `<div class="flex flex-wrap gap-x-4">${n.links.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="link-red">${esc(l)}${ic('ext', 14)}</a>`).join('')}</div>` : ''}
         </div>`;
     }
 
     // ================================================================
     // TODAY
     // ================================================================
-    function miniList(stops) {
-      return `<div class="rounded-2xl bg-slate-900 border border-slate-800 divide-y divide-slate-800">${stops.map(s => `
-        <button data-act="openstop" data-di="${s.di}" data-si="${s.si}" class="w-full text-left px-4 py-3 flex items-center gap-3">
-          <span class="text-sm font-black text-slate-300 w-12 shrink-0">${hm(s.start)}</span>
-          <span class="flex-1 font-semibold">${NODES[s.node].icon} ${esc(s.title)}</span>
-          <span class="text-slate-500">›</span>
-        </button>`).join('')}</div>`;
+    function nowCard(s, t) {
+      const n = NODES[s.node], d = DAYS[s.di];
+      const p = Math.max(0, Math.min(100, Math.round((t - s.t0) / (s.t1 - s.t0) * 100)));
+      return `
+        <div class="card-dark p-5 space-y-3.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="pill-dark"><span class="dot" style="background:${d.dot}"></span>ตอนนี้ · Day ${s.di + 1}</span>
+            <span class="text-sm font-semibold text-dim tnum">${hm(s.start)}–${hm(s.end)}</span>
+          </div>
+          <div class="space-y-1">
+            <h2 class="t26 font-bold">${esc(s.title)}</h2>
+            <div class="zh text-base text-dim">${esc(n.cn)}</div>
+            ${s.why ? `<p class="t15 text-[#DADCE3] pt-1">${esc(s.why)}</p>` : ''}
+          </div>
+          <div class="space-y-2">
+            <div class="bar bar-dark"><i style="width:${p}%;background:${d.dot}"></i></div>
+            <div class="flex justify-between gap-2 t13 text-dim"><span>อยู่มาแล้ว ${dur(t - s.t0)}</span><span class="font-bold text-white">เหลือ ${dur(s.t1 - t)}</span></div>
+          </div>
+          ${s.tip ? `<div class="note-dark">${ic('bulb', 18)}<span>${esc(s.tip)}</span></div>` : ''}
+          ${s.food ? foodRow(s, true) : ''}
+          ${stopActions(s, true)}
+        </div>`;
+    }
+
+    function timeline(di, t, cur, title) {
+      const d = DAYS[di];
+      const rows = ALL.filter(s => s.di === di).map(s => {
+        const st = s === cur ? 'now' : s.t1 <= t ? 'done' : 'next';
+        const dot = st === 'now'
+          ? `<span class="tl-dot" style="background:${d.color};box-shadow:0 0 0 4px ${d.tint}"></span>`
+          : `<span class="tl-dot ${st}">${st === 'done' ? ic('check', 12) : ''}</span>`;
+        return `<li><button data-act="openstop" data-di="${s.di}" data-si="${s.si}" class="tl-row">
+          <span class="tl-time ${st}">${hm(s.start)}</span>${dot}
+          <span class="tl-title ${st}"><span>${esc(s.title)}</span>${st === 'now' ? `<span class="tl-now" style="color:${d.color};background:${d.tint}">ตอนนี้</span>` : ''}</span>
+        </button></li>`;
+      }).join('');
+      return `
+        <section class="card px-[18px] py-2">
+          <div class="flex justify-between items-center gap-2">
+            <h2 class="sec-title">${title}</h2>
+            <button data-act="openday" data-di="${di}" class="link-red shrink-0">ดูบนแผนที่${ic('chev', 16)}</button>
+          </div>
+          <ol class="tl">${rows}</ol>
+        </section>`;
+    }
+
+    function countdown(ms) {
+      const m = Math.max(0, Math.floor(ms / 60000));
+      const parts = [[Math.floor(m / 1440), 'วัน'], [Math.floor((m % 1440) / 60), 'ชั่วโมง'], [m % 60, 'นาที']];
+      return `<div class="grid grid-cols-3 gap-2">${parts.map(([v, l]) => `
+        <div class="rounded-2xl bg-white/10 py-3 flex flex-col items-center"><span class="text-4xl font-bold leading-tight tnum">${v}</span><span class="t13 text-dim">${l}</span></div>`).join('')}</div>`;
+    }
+
+    const dayGrid = () => `
+      <div class="grid grid-cols-2 gap-2.5">${DAYS.map((d, i) => `
+        <button data-act="openday" data-di="${i}" class="rounded-[20px] p-3.5 text-left flex flex-col gap-1 min-h-[96px]" style="background:${d.tint}">
+          <span class="text-xs font-bold" style="color:${d.color}">DAY ${i + 1} · ${d.dow} ${+d.date.slice(8)}</span>
+          <span class="t15 font-bold leading-snug">${esc(d.title)}</span>
+        </button>`).join('')}
+      </div>`;
+
+    function pickupBanner(t) {
+      return `
+        <div class="rounded-3xl bg-[#D8392B] text-white p-[18px] space-y-3.5">
+          <div class="space-y-1">
+            <div class="t13 font-bold text-[#FFE1DC]">อย่าพลาด · อีก ${dur(KEY.pickup - t)}</div>
+            <div class="text-xl font-bold leading-snug">17:15 รับกระเป๋าที่ รร. → สนามบิน</div>
+            <div class="text-sm text-[#FFE1DC]">HO1357 ออก 21:00 · เคาน์เตอร์เช็กอินปิด 20:00</div>
+          </div>
+          <button data-act="hotelcard" class="btn btn-white w-full" style="color:#B32A1C">${ic('bed', 20)}ป้ายกลับโรงแรม</button>
+        </div>`;
     }
 
     function renderToday() {
@@ -978,86 +1298,109 @@
       if (t < KEY.meet) {
         status = `อีก ${dur(KEY.meet - t)} ถึงเวลานัด`;
         const done = Object.values(store.get('mtrx-chk', {})).filter(Boolean).length;
+        const ready = store.get('mtrx-offline', null);
         out.push(`
-          <div class="rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-900 p-5 space-y-2">
-            <div class="text-sm font-bold text-indigo-200">⏳ นับถอยหลังถึงเวลานัดที่สุวรรณภูมิ</div>
-            <div class="text-4xl font-black">${dur(KEY.meet - t)}</div>
-            <div class="text-base font-bold">อา. 25 ต.ค. 22:45 (เวลาไทย) • เคาน์เตอร์ Juneyao Air</div>
-            <div class="text-sm text-indigo-200">✈️ HO1358 ออก 01:45 → ถึง PVG T2 06:55</div>
+          <div class="card-dark p-5 space-y-[18px]">
+            <span class="pill-dark"><span class="dot bg-[#FF8A7A]"></span>นับถอยหลังถึงเวลานัด</span>
+            ${countdown(KEY.meet - t)}
+            <div class="flex gap-3 items-center">
+              <span class="icb bg-white/10">${ic('pin', 22)}</span>
+              <div><div class="t17 font-bold">อาทิตย์ 25 ต.ค. · 22:45 (เวลาไทย)</div><div class="text-sm text-dim">สนามบินสุวรรณภูมิ · เคาน์เตอร์ Juneyao Air</div></div>
+            </div>
           </div>
-          <button data-act="goto" data-tab="info" data-target="info-checklist" class="w-full flex items-center justify-between rounded-2xl bg-slate-900 border border-amber-500/40 p-4">
-            <span class="font-bold">✅ เช็กลิสต์ก่อนบิน</span>
-            <span class="font-black text-amber-300">${done}/${CHECKLIST.length} ›</span>
+          <div class="card p-[18px] space-y-3.5">
+            <div class="flex justify-between items-center"><span class="t13 font-bold text-[#2457D6]">ไฟลต์ขาไป · จ. 26 ต.ค.</span><span class="t13 font-semibold text-mute">HO1358 · A321</span></div>
+            <div class="flex items-center gap-3">
+              <div><div class="text-[1.75rem] font-bold leading-tight">BKK</div><div class="text-base font-semibold tnum">01:45</div><div class="text-xs text-mute">สุวรรณภูมิ</div></div>
+              <div class="flex-1 flex items-center gap-1.5 text-[#2457D6]"><span class="flex-1 h-0.5 bg-[#D5DCEC] rounded"></span>${ic('plane', 22)}<span class="flex-1 h-0.5 bg-[#D5DCEC] rounded"></span></div>
+              <div class="text-right"><div class="text-[1.75rem] font-bold leading-tight">PVG</div><div class="text-base font-semibold tnum">06:55</div><div class="text-xs text-mute">ผู่ตง T2</div></div>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="chip chip-soft">โหลด 23 kg</span><span class="chip chip-soft">ถือขึ้น 5 kg</span><span class="chip chip-soft">มีอาหารร้อน</span></div>
+          </div>
+          <button data-act="goto" data-tab="info" data-target="info-checklist" class="card w-full text-left p-[18px] space-y-3 block">
+            <span class="flex justify-between items-center"><span class="sec-title">เช็กลิสต์ก่อนบิน</span><span class="text-sm font-bold text-red tnum">${done} / ${CHECKLIST.length}</span></span>
+            <span class="bar block"><i style="width:${Math.round(done / CHECKLIST.length * 100)}%"></i></span>
+            <span class="flex justify-between items-center text-sm text-mute">ติ๊กเก็บไว้ในเครื่องนี้<span class="inline-flex items-center font-semibold text-red">เปิดเช็กลิสต์${ic('chev', 16)}</span></span>
           </button>
-          <button data-act="goto" data-tab="info" data-target="info-offline" class="w-full flex items-center justify-between rounded-2xl bg-slate-900 border border-sky-500/40 p-4">
-            <span class="font-bold">📲 ติดตั้งแอป + ดาวน์โหลดใช้ offline</span>
-            <span class="font-black text-sky-300">${store.get('mtrx-offline', null) ? '✓ พร้อม' : 'ทำเลย ›'}</span>
+          <button data-act="goto" data-tab="info" data-target="info-offline" class="card w-full flex items-center gap-3 p-4 text-left">
+            <span class="icb bg-[#F1F3F8]">${ic('cloud', 22)}</span>
+            <span class="flex-1 min-w-0"><span class="block t15 font-bold">ติดตั้งแอป + ดาวน์โหลดใช้ offline</span><span class="block t13 text-mute">ทำตอนต่อ Wi-Fi ที่ไทย</span></span>
+            <span class="chip ${ready ? 'chip-ok' : 'chip-bad'} shrink-0">${ready ? 'พร้อมแล้ว' : 'ทำเลย'}</span>
           </button>
-          <h2 class="text-sm font-bold text-slate-400 pt-2">👀 พรีวิว ${dayLabel(DAYS[0])}</h2>
-          ${miniList(ALL.filter(s => s.di === 0))}`);
+          <h2 class="sec-title px-1 pt-1">ทริปนี้มีอะไรบ้าง</h2>
+          ${dayGrid()}`);
       } else if (t < KEY.land) {
-        status = '✈️ กำลังเดินทาง';
+        status = 'กำลังเดินทาง · HO1358';
         out.push(`
-          <div class="rounded-3xl bg-gradient-to-br from-sky-600 to-indigo-900 p-5 space-y-2">
-            <div class="text-sm font-bold text-sky-100">✈️ HO1358 กำลังเดินทาง</div>
-            <div class="text-3xl font-black">ถึง PVG T2 06:55</div>
-            <div class="text-sm text-sky-100">อีกประมาณ ${dur(KEY.land - t)} (เวลาเซี่ยงไฮ้เร็วกว่าไทย 1 ชม.)</div>
+          <div class="card-dark p-5 space-y-2">
+            <span class="pill-dark">${ic('plane', 16)}HO1358 กำลังเดินทาง</span>
+            <div class="text-3xl font-bold pt-1">ถึง PVG T2 06:55</div>
+            <div class="text-sm text-dim">อีกประมาณ ${dur(KEY.land - t)} · เวลาเซี่ยงไฮ้เร็วกว่าไทย 1 ชม.</div>
           </div>
-          <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4 space-y-1 text-sm">
-            <div class="font-bold text-amber-300">🛬 ลงเครื่องแล้วทำตามนี้</div>
-            <div>1. ปิด Wi-Fi สนามบิน ➜ เปิด ipinfo.io ต้องเห็นประเทศ TH</div>
-            <div>2. ผ่าน ตม. (บัตรขาเข้าออนไลน์ / NIA 12367) ➜ รับกระเป๋า</div>
-            <div>3. เรียก DiDi 六座商务 (6 ที่นั่ง) ➜ กด 🏨 กลับ รร. โชว์ป้ายคนขับ</div>
+          <div class="card p-4 space-y-2">
+            <h2 class="sec-title">ลงเครื่องแล้วทำตามนี้</h2>
+            <ol class="list-decimal pl-5 space-y-1 text-sm text-ink2">
+              <li>ปิด Wi-Fi สนามบิน ➜ เปิด ipinfo.io ต้องเห็นประเทศ TH</li>
+              <li>ผ่าน ตม. (บัตรขาเข้าออนไลน์ / NIA 12367) ➜ รับกระเป๋า</li>
+              <li>เรียก DiDi 六座商务 (6 ที่นั่ง) ➜ กดปุ่ม กลับ รร. โชว์ป้ายคนขับ</li>
+            </ol>
           </div>
-          ${stopCard(ALL[0], { badge: 'จุดแรก' })}`);
+          ${stopCard(ALL[0], { kicker: `จุดแรก · ${hm(ALL[0].start)}` })}`);
       } else if (t < KEY.depart) {
         const cur = ALL.find(s => s.t0 <= t && t < s.t1);
         const nxt = ALL.find(s => s.t0 > t);
         const today = shDate(t);
         const dayObj = cur ? DAYS[cur.di] : (DAYS.find(d => d.date === today) || (nxt ? DAYS[nxt.di] : DAYS[3]));
-        status = `${dayLabel(dayObj)} • ${shClock(t)}`;
-        out.push(`<div class="rounded-2xl p-4 text-white" style="background:${dayObj.color}">
-          <div class="text-sm font-bold opacity-90">${dayLabel(dayObj)} • เซี่ยงไฮ้ ${shClock(t)} น.</div>
-          <div class="text-lg font-black leading-snug">${esc(dayObj.title)}</div></div>`);
+        const di = DAYS.indexOf(dayObj);
+        status = `${dayLabel(dayObj)} · ${di === DAYS.length - 1 ? 'วันสุดท้าย' : `วันที่ ${di + 1} จาก ${DAYS.length}`}`;
 
-        if (today === '2026-10-29' && t < KEY.pickup) {
-          out.push(`<div class="rounded-2xl bg-amber-400 text-slate-950 p-4">
-            <div class="font-black text-lg">🧳 17:15 รับกระเป๋าที่ รร. → สนามบิน</div>
-            <div class="font-bold">อีก ${dur(KEY.pickup - t)} • เคาน์เตอร์เช็กอินปิด 20:00</div></div>`);
-        }
+        if (today === '2026-10-29' && t < KEY.pickup) out.push(pickupBanner(t));
         if (cur) {
-          const sameDay = nxt && nxt.di === cur.di;
-          out.push(`<div class="text-sm font-bold text-emerald-300">● ตอนนี้ • ${sameDay ? `ไปจุดถัดไป ${hm(nxt.start)} (อีก ${dur(nxt.t0 - t)})` : `ถึง ${hm(cur.end)}`}</div>`);
-          out.push(stopCard(cur, { hl: true }));
-          if (nxt) out.push(`<div class="text-sm font-bold text-slate-400 pt-1">ถัดไป • ${hm(nxt.start)}</div>${stopCard(nxt)}`);
+          out.push(nowCard(cur, t));
+          if (nxt) out.push(stopCard(nxt, { kicker: `ถัดไป · ${hm(nxt.start)}`, note: `อีก ${dur(nxt.t0 - t)}`, move: true }));
         } else if (nxt) {
           const nd = DAYS[nxt.di];
           if (nd !== dayObj || nxt.t0 - t > 6 * 3600e3) {
-            out.push(`<div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
-              <div class="font-black text-lg">🌙 พักผ่อน</div>
-              <div class="text-slate-300">ต่อไป ${dayLabel(nd)}${nd.lobby ? ` • นัดล็อบบี้ <b class="text-amber-300">${nd.lobby}</b>` : ''}</div></div>`);
+            out.push(`
+              <div class="card p-4 flex gap-3 items-center">
+                <span class="icb bg-[#F1F3F8]">${ic('moon', 22)}</span>
+                <div><div class="t17 font-bold">พักผ่อน</div><div class="text-sm text-ink2">ต่อไป ${dayLabel(nd)}${nd.lobby ? ` · นัดล็อบบี้ <b class="text-red">${nd.lobby}</b>` : ''}</div></div>
+              </div>`);
           }
-          out.push(`<div class="text-sm font-bold text-amber-300">ถัดไป • ${hm(nxt.start)} • อีก ${dur(nxt.t0 - t)}</div>`);
-          out.push(stopCard(nxt, { hl: true }));
+          out.push(stopCard(nxt, { kicker: `ถัดไป · ${hm(nxt.start)}`, note: `อีก ${dur(nxt.t0 - t)}`, move: true }));
         }
-        const restDay = cur ? cur.di : (nxt ? nxt.di : -1);
-        const rest = ALL.filter(s => s.di === restDay && s.t0 > t && s !== nxt);
-        if (rest.length) out.push(`<h2 class="text-sm font-bold text-slate-400 pt-1">ที่เหลือของวัน</h2>${miniList(rest)}`);
+        const tomorrow = DAYS[di + 1];
+        if (tomorrow?.lobby && shClock(t) >= '18:00') {
+          out.push(`
+            <div class="rounded-[20px] bg-[#FFF3D6] px-4 py-3.5 flex gap-3 items-center">
+              <span class="icb bg-white text-[#A04A00]">${ic('clock', 22)}</span>
+              <div class="min-w-0"><div class="text-xs font-bold text-[#8A4200]">พรุ่งนี้ · ${dayLabel(tomorrow)}</div><div class="t15 font-bold">นัดล็อบบี้ ${tomorrow.lobby}</div><div class="t13 text-[#5C3A10]">${esc(tomorrow.title)}</div></div>
+            </div>`);
+        }
+        out.push(timeline(cur ? cur.di : di, t, cur, 'ตารางวันนี้'));
       } else if (t < KEY.home) {
-        status = '✈️ บินกลับ HO1357';
-        out.push(`<div class="rounded-3xl bg-gradient-to-br from-emerald-600 to-slate-900 p-5 space-y-1">
-          <div class="text-sm font-bold">✈️ HO1357 PVG → BKK</div>
-          <div class="text-3xl font-black">ถึงสุวรรณภูมิ 00:45</div>
-          <div class="text-sm">เดินทางปลอดภัยทุกคน 🙏</div></div>`);
+        status = 'บินกลับ HO1357';
+        out.push(`
+          <div class="card-dark p-5 space-y-2">
+            <span class="pill-dark">${ic('plane', 16)}HO1357 PVG → BKK</span>
+            <div class="text-3xl font-bold pt-1">ถึงสุวรรณภูมิ 00:45</div>
+            <div class="text-sm text-dim">เดินทางปลอดภัยทุกคน</div>
+          </div>`);
       } else {
-        status = 'จบทริปแล้ว 🎉';
-        out.push(`<div class="rounded-3xl bg-slate-900 border border-slate-800 p-5">
-          <div class="text-2xl font-black">🎉 จบทริป Shanghai R&amp;D 2026</div>
-          <div class="text-slate-300">ขอบคุณทุกคน • ดูแผนทั้งหมดได้ในแท็บ 🗺️ ทริป</div></div>`);
+        status = 'จบทริปแล้ว';
+        out.push(`
+          <div class="card p-5 space-y-1">
+            <div class="text-2xl font-bold">จบทริป Shanghai R&amp;D 2026</div>
+            <div class="text-ink2">ขอบคุณทุกคน · ดูแผนทั้งหมดได้ในแท็บทริป</div>
+          </div>`, dayGrid());
       }
       const html = out.join('');
       if (html !== renderToday.last) { $('today-body').innerHTML = html; renderToday.last = html; }
       $('hdr-status').textContent = status;
+      // Before landing the team is in Thailand, so Thai time leads
+      const thai = t < KEY.land;
+      $('clk-main').textContent = thai ? thClock(t) : shClock(t);
+      $('clk-sub').textContent = thai ? `เวลาไทย · จีน ${shClock(t)}` : `เซี่ยงไฮ้ · ไทย ${thClock(t)}`;
     }
 
     // ================================================================
@@ -1067,18 +1410,24 @@
 
     function renderTrip(animate = false) {
       const d = DAYS[activeDay];
-      $('day-chips').innerHTML = DAYS.map((x, i) => `
-        <button data-act="day" data-di="${i}" class="h-14 rounded-xl font-bold text-sm leading-tight ${i === activeDay ? 'text-white' : 'bg-slate-800 text-slate-300'}" style="${i === activeDay ? `background:${x.color}` : ''}">
-          Day ${i + 1}<br/><span class="text-xs font-semibold opacity-80">${x.dow} ${+x.date.slice(8)}</span>
-        </button>`).join('');
-      $('day-head').innerHTML = `<div class="rounded-2xl p-4 text-white" style="background:${d.color}">
-        <div class="text-sm font-bold opacity-90">${dayLabel(d)}${d.lobby ? ` • นัดล็อบบี้ ${d.lobby}` : ''}</div>
-        <div class="text-lg font-black leading-snug">${esc(d.title)}</div></div>`;
-      const t = now();
-      $('stop-list').innerHTML = ALL.filter(s => s.di === activeDay).map(s => {
-        const live = s.t0 <= t && t < s.t1;
-        return stopCard(s, { id: `stop-${s.si}`, hl: live, badge: live ? '● ตอนนี้' : `จุดที่ ${s.si + 1}`, links: true });
+      $('day-chips').innerHTML = DAYS.map((x, i) => {
+        const on = i === activeDay;
+        return `<button data-act="day" data-di="${i}" aria-pressed="${on}" class="min-h-[58px] rounded-2xl flex flex-col items-center justify-center gap-0.5 leading-tight" style="${on ? `background:${x.color};color:#fff;border:1.5px solid ${x.color}` : 'background:#fff;border:1.5px solid #E6E8EE'}">
+          <span class="text-xs font-bold" style="color:${on ? '#fff' : x.color}">DAY ${i + 1}</span><span class="text-sm font-semibold">${x.dow} ${+x.date.slice(8)}</span>
+        </button>`;
       }).join('');
+      $('day-head').innerHTML = `<div class="px-1 space-y-1">
+        <div class="flex items-center justify-between gap-2">
+          <span class="t13 font-bold" style="color:${d.color}">${dayLabel(d)}</span>
+          ${d.lobby ? `<span class="pill-ink">${ic('clock', 16)}นัดล็อบบี้ ${d.lobby}</span>` : ''}
+        </div>
+        <h2 class="t19 font-bold leading-snug">${esc(d.title)}</h2></div>`;
+      const t = now();
+      $('stop-list').innerHTML = ALL.filter(s => s.di === activeDay).map(s => `
+        <div id="stop-${s.si}" class="space-y-2">
+          ${s.move ? `<div class="move">${ic(moveIcon(s.move), 16)}<span>${esc(noEmo(s.move))}</span></div>` : ''}
+          ${stopCard(s, { num: true, live: s.t0 <= t && t < s.t1, links: true })}
+        </div>`).join('');
       drawMap(animate);
     }
 
@@ -1089,7 +1438,7 @@
     async function ensureMap() {
       if (map) { setTimeout(() => map.invalidateSize(), 60); return; }
       try { await loadLeaflet(); } catch (e) {
-        $('map').innerHTML = '<p class="p-4 text-sm text-slate-400">แผนที่โหลดไม่ได้ตอนนี้ — ปุ่ม 🧭 นำทาง ยังใช้ได้</p>';
+        $('map').innerHTML = '<p class="p-4 text-sm text-mute">แผนที่โหลดไม่ได้ตอนนี้ — ปุ่มนำทางยังใช้ได้</p>';
         return;
       }
       if (map) return;
@@ -1108,11 +1457,12 @@
       const size = on ? 34 : 28;
       return L.divIcon({
         className: '',
-        html: `<div style="display:flex;align-items:center;gap:4px"><div class="pin ${on ? 'pin-on' : ''}" style="width:${size}px;height:${size}px;background:${color};font-size:12px">${idx + 1}</div><div class="pin-label" style="border:1.5px solid ${color}">${n.icon} ${esc(n.name)}</div></div>`,
+        html: `<div style="display:flex;align-items:center;gap:4px"><div class="pin ${on ? 'pin-on' : ''}" style="width:${size}px;height:${size}px;background:${color};font-size:12px">${idx + 1}</div><div class="pin-label">${esc(n.name)}</div></div>`,
         iconSize: [190, size], iconAnchor: [size / 2, size / 2]
       });
     }
 
+    const pinColor = (s, d) => isBase(s.node) ? '#16181D' : d.color;
     function drawMap(animate = false) {
       if (!map) return;
       markers.forEach(m => map.removeLayer(m));
@@ -1121,7 +1471,7 @@
       const pts = d.stops.map(s => [NODES[s.node].lat, NODES[s.node].lng]);
       route = L.polyline(pts, { color: d.color, weight: 5, opacity: 0.85, dashArray: '10, 8' }).addTo(map);
       markers = d.stops.map((s, si) => {
-        const m = L.marker([NODES[s.node].lat, NODES[s.node].lng], { icon: pinIcon(NODES[s.node], si, d.color, si === activeStop) }).addTo(map);
+        const m = L.marker([NODES[s.node].lat, NODES[s.node].lng], { icon: pinIcon(NODES[s.node], si, pinColor(s, d), si === activeStop) }).addTo(map);
         m.on('click', () => focusStop(si, true));
         return m;
       });
@@ -1132,8 +1482,8 @@
     function focusStop(si, fromMap = false) {
       const d = DAYS[activeDay];
       activeStop = si;
-      if (map) markers.forEach((m, i) => m.setIcon(pinIcon(NODES[d.stops[i].node], i, d.color, i === si)));
-      document.querySelectorAll('#stop-list > div').forEach((el, i) => el.classList.toggle('card-on', i === si));
+      if (map) markers.forEach((m, i) => m.setIcon(pinIcon(NODES[d.stops[i].node], i, pinColor(d.stops[i], d), i === si)));
+      document.querySelectorAll('#stop-list > div').forEach((el, i) => el.querySelector('.card')?.classList.toggle('card-on', i === si));
       if (fromMap) $('stop-' + si)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       else if (map) { const n = NODES[d.stops[si].node]; map.flyTo([n.lat, n.lng], 15, { duration: 0.6 }); }
     }
@@ -1141,32 +1491,51 @@
     // ================================================================
     // CARDS TAB
     // ================================================================
-    let phraseCat = 'didi';
+    let phraseCat = 'didi', cardView = 'places';
     function renderCards() {
-      $('place-cards').innerHTML = DAYS.map(d => {
+      const q = ($('place-q').value || '').trim().toLowerCase();
+      const html = DAYS.map(d => {
         const seen = new Set();
-        const items = d.stops.filter(s => s.node !== 'hotel' && !seen.has(s.node) && seen.add(s.node));
-        return `<div>
-          <div class="text-sm font-bold mb-2" style="color:${d.color}">${dayLabel(d)}</div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items.map(s => {
+        const items = d.stops.filter(s => s.node !== 'hotel' && !seen.has(s.node) && seen.add(s.node))
+          .filter(s => !q || NODES[s.node].name.toLowerCase().includes(q) || NODES[s.node].cn.includes(q));
+        if (!items.length) return '';
+        return `<section class="space-y-2">
+          <h2 class="t13 font-bold px-1" style="color:${d.color}">${dayLabel(d)}</h2>
+          <div class="card overflow-hidden row-div">${items.map((s, i) => {
             const n = NODES[s.node];
-            return `<button data-act="place" data-node="${s.node}" class="text-left rounded-xl bg-slate-900 border border-slate-800 p-3">
-              <div class="text-sm font-bold">${n.icon} ${esc(n.name)}</div>
-              <div class="zh text-lg font-black text-amber-300 leading-snug">${esc(n.cn)}</div></button>`;
-          }).join('')}</div></div>`;
+            return `<button data-act="place" data-node="${s.node}" class="w-full grid grid-cols-[40px_minmax(0,1fr)_20px] gap-3 items-center px-3.5 py-3 min-h-[68px] text-left">
+              <span class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold" style="background:${d.tint};color:${d.color}">${i + 1}</span>
+              <span class="min-w-0"><span class="zh block t17 font-bold leading-snug">${esc(n.cn)}</span><span class="block t13 text-mute">${esc(n.name)}</span></span>
+              <span class="text-mute">${ic('chev', 20)}</span></button>`;
+          }).join('')}</div></section>`;
       }).join('');
+      $('place-cards').innerHTML = html || '<p class="text-center text-sm text-mute py-6">ไม่เจอสถานที่นี้ในทริป</p>';
       renderPhrases();
     }
     function renderPhrases() {
-      $('phrase-chips').innerHTML = PHRASE_CATS.map(([k, l]) => `<button data-act="pcat" data-cat="${k}" class="h-10 px-3 rounded-full text-sm font-bold ${k === phraseCat ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-300'}">${l}</button>`).join('');
+      $('phrase-chips').innerHTML = PHRASE_CATS.map(([k, l]) => `<button data-act="pcat" data-cat="${k}" aria-pressed="${k === phraseCat}" class="chip-btn ${k === phraseCat ? 'on' : ''}">${esc(noEmo(l))}</button>`).join('');
       $('phrase-list').innerHTML = PHRASES.map((p, i) => p.cat !== phraseCat ? '' : `
-        <button data-act="phrase" data-i="${i}" class="w-full text-left rounded-xl bg-slate-900 border border-slate-800 p-3">
-          <div class="text-sm font-bold text-emerald-300">${esc(p.th)}</div>
-          <div class="zh text-xl font-black text-amber-300 leading-snug">${esc(p.cn)}</div>
-          <div class="text-xs text-indigo-300">🗣️ ${esc(p.py)}</div>
-        </button>`).join('');
+        <div class="card p-4 space-y-2.5">
+          <button data-act="phrase" data-i="${i}" class="w-full text-left space-y-1.5">
+            <span class="zh block text-[1.3rem] font-bold leading-snug">${esc(p.cn)}</span>
+            <span class="block text-sm text-mute">${esc(p.py)}</span>
+          </button>
+          <div class="flex justify-between items-center gap-3 border-t border-[#EEF0F4] pt-2.5">
+            <span class="t15 font-semibold">${esc(p.th)}</span>
+            <span class="flex gap-2 shrink-0">
+              <button data-act="speak" data-text="${esc(p.cn)}" aria-label="ฟังเสียงภาษาจีน" class="icb btn-redsoft">${ic('volume', 20)}</button>
+              <button data-act="phrase" data-i="${i}" aria-label="ขยายเต็มจอ" class="icb bg-[#F7F8FB] border border-[#E6E8EE]">${ic('expand', 20)}</button>
+            </span>
+          </div>
+        </div>`).join('');
     }
-    function phraseCard(p) { if (!p) return; openCard({ label: '🗣️ ยื่นให้อ่านได้เลย', cn: p.cn, py: p.py, th: p.th }); speak(p.cn); }
+    function showCardView(v) {
+      cardView = v;
+      $('cards-places').hidden = v !== 'places';
+      $('cards-phrases').hidden = v !== 'phrases';
+      document.querySelectorAll('[data-act="cview"]').forEach(b => { const on = b.dataset.v === v; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    }
+    function phraseCard(p) { if (!p) return; openCard({ label: 'ยื่นให้อ่านได้เลย', cn: p.cn, py: p.py, th: p.th }); speak(p.cn); }
 
     // ================================================================
     // TRANSLATE TAB
@@ -1175,16 +1544,16 @@
 
     const matchDict = text => DICT.filter(item => item.cn.split(' / ').some(p => text.includes(p.trim())));
     function setBadge(text, tone) {
-      const tones = { idle: 'bg-slate-800 text-slate-300', busy: 'bg-amber-500/20 text-amber-300', ok: 'bg-emerald-500/20 text-emerald-300', bad: 'bg-rose-500/20 text-rose-300' };
+      const tones = { idle: 'chip-soft', busy: 'chip-warn', ok: 'chip-ok', bad: 'chip-bad' };
       $('scan-badge').textContent = text;
-      $('scan-badge').className = `text-xs font-bold px-2.5 py-1 rounded-full ${tones[tone]}`;
+      $('scan-badge').className = `chip ${tones[tone]}`;
     }
     function handleScanText(raw) {
       const text = (raw || '').trim();
       scanCn = text;
       $('scan-cn').textContent = text || '—';
       const hits = text ? matchDict(text) : [];
-      $('scan-chips').innerHTML = hits.map(h => `<button data-act="speak" data-text="${esc(h.cn.split(' / ')[0])}" class="px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-sm text-emerald-100 font-bold">${esc(h.cn)} = ${esc(h.th)} 🔊</button>`).join('');
+      $('scan-chips').innerHTML = hits.map(h => `<button data-act="speak" data-text="${esc(h.cn.split(' / ')[0])}" class="chip chip-ok min-h-[40px] text-sm">${ic('volume', 16)}<span><span class="zh">${esc(h.cn)}</span> = ${esc(h.th)}</span></button>`).join('');
       $('scan-th').textContent = hits.length ? hits.map(h => h.th).join(' • ') : '';
       clearTimeout(debounce);
       if (!text) { setBadge('รอข้อความจีน', 'idle'); return; }
@@ -1225,26 +1594,26 @@
       $('trans-main').textContent = ''; $('trans-sub').textContent = ''; $('trans-actions').hidden = true; trans = null;
       const out = await mtTranslate(text, zhIn ? 'zh-CN|th' : 'th|zh-CN');
       if (!out) {
-        $('trans-status').textContent = '📴 แปลออนไลน์ไม่ได้ตอนนี้ — ใช้ประโยคสำเร็จรูปในแท็บ 🚕 ป้ายจีน หรือแอปแปลภาษาแบบ offline';
+        $('trans-status').textContent = '📴 แปลออนไลน์ไม่ได้ตอนนี้ — ใช้ประโยคสำเร็จรูปในแท็บป้ายจีน หรือแอปแปลภาษาแบบ offline';
         return;
       }
       trans = zhIn ? { cn: text, th: out } : { cn: out, th: text };
       $('trans-status').textContent = '✅ แปลแล้ว';
       $('trans-main').textContent = out;
-      $('trans-main').className = zhIn ? 'text-2xl font-black text-emerald-300 break-words' : 'zh text-2xl font-black text-amber-300 break-words';
+      $('trans-main').className = zhIn ? 'text-2xl font-bold break-words' : 'zh text-3xl font-bold break-words';
       $('trans-sub').textContent = zhIn ? `ภาษาจีน: ${text}` : `ภาษาไทย: ${text}`;
       $('trans-actions').hidden = false;
       if (speakOut && !zhIn) speak(out); // Thai → Chinese: say it out loud straight away
     }
 
     // ---------- Speech recognition (mic buttons) ----------
-    const MIC_LABEL = { 'th-TH': '🎙️ พูดไทย → จีน', 'zh-CN': '🎙️ คนจีนพูด → ไทย' };
+    const MIC_LABEL = { 'th-TH': 'พูดไทย → จีน', 'zh-CN': 'คนจีนพูด → ไทย' };
     let rec = null, recLang = null;
     function setMicUI(lang) {
       document.querySelectorAll('[data-act="mic"]').forEach(b => {
         const on = b.dataset.lang === lang;
-        b.textContent = on ? '⏺ กำลังฟัง… แตะเพื่อหยุด' : MIC_LABEL[b.dataset.lang];
-        b.style.boxShadow = on ? '0 0 0 3px #f43f5e' : '';
+        b.innerHTML = ic(on ? 'stop' : 'mic', 18) + (on ? 'กำลังฟัง… แตะเพื่อหยุด' : MIC_LABEL[b.dataset.lang]);
+        b.style.boxShadow = on ? '0 0 0 3px #D8392B' : '';
       });
     }
     function stopMic() { if (!rec) return; const old = rec; rec = null; recLang = null; setMicUI(null); try { old.aborted = true; old.abort(); } catch (e) {} }
@@ -1289,16 +1658,23 @@
       try { r.start(); } catch (e) { rec = null; recLang = null; setMicUI(null); $('trans-status').textContent = '⚠️ เปิดไมค์ไม่ได้ — ใช้ 🎙️ บนแป้นพิมพ์แทน'; }
     }
 
+    function showTrMode(v) {
+      ['scan', 'text', 'dict'].forEach(k => { $('tr-' + k).hidden = k !== v; });
+      document.querySelectorAll('[data-act="trmode"]').forEach(b => { const on = b.dataset.v === v; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+      if (v !== 'scan') stopCamera();
+      if (v !== 'text') stopMic();
+    }
+
     function renderDict() {
       const q = ($('dict-q').value || '').trim().toLowerCase();
-      $('dict-chips').innerHTML = DICT_CATS.map(([k, l]) => `<button data-act="dcat" data-cat="${k}" class="h-10 px-3 rounded-full text-sm font-bold ${k === dictCat ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${l}</button>`).join('');
+      $('dict-chips').innerHTML = DICT_CATS.map(([k, l]) => `<button data-act="dcat" data-cat="${k}" aria-pressed="${k === dictCat}" class="chip-btn ${k === dictCat ? 'on' : ''}">${esc(noEmo(l))}</button>`).join('');
       $('dict-grid').innerHTML = DICT.map((it, i) => {
         if (dictCat !== 'all' && it.cat !== dictCat) return '';
         if (q && !(it.cn.includes(q) || it.th.toLowerCase().includes(q) || it.py.includes(q))) return '';
-        return `<button data-act="dict" data-i="${i}" class="text-left rounded-xl bg-slate-950 border border-slate-800 p-3">
-          <div class="zh text-xl font-black text-amber-300">${esc(it.cn)}</div>
-          <div class="text-sm font-bold">${esc(it.th)}</div>
-          <div class="text-xs text-indigo-300">🗣️ ${esc(it.py)}</div></button>`;
+        return `<button data-act="dict" data-i="${i}" class="card text-left rounded-[18px] p-3 space-y-0.5">
+          <div class="zh text-xl font-bold">${esc(it.cn)}</div>
+          <div class="text-sm font-semibold">${esc(it.th)}</div>
+          <div class="text-xs text-mute">${esc(it.py)}</div></button>`;
       }).join('');
     }
 
@@ -1389,20 +1765,25 @@
     function renderChecklist() {
       const st = store.get('mtrx-chk', {});
       $('checklist').innerHTML = CHECKLIST.map(([k, title, sub]) => `
-        <label class="flex items-start gap-3 rounded-xl bg-slate-950 border ${st[k] ? 'border-emerald-600/60' : 'border-slate-800'} p-3 cursor-pointer">
-          <input type="checkbox" data-chk="${k}" ${st[k] ? 'checked' : ''} class="mt-1 w-6 h-6 accent-emerald-500 shrink-0" />
-          <span><span class="block font-bold ${st[k] ? 'text-emerald-300 line-through' : ''}">${esc(title)}</span><span class="block text-sm text-slate-400">${esc(sub)}</span></span>
+        <label class="flex items-start gap-3 py-2.5 min-h-[44px] cursor-pointer">
+          <input type="checkbox" data-chk="${k}" ${st[k] ? 'checked' : ''} class="mt-0.5 w-[22px] h-[22px] accent-[#D8392B] shrink-0" />
+          <span><span class="block t15 font-semibold leading-snug ${st[k] ? 'text-mute line-through' : ''}">${esc(title)}</span><span class="block t13 text-mute">${esc(sub)}</span></span>
         </label>`).join('');
-      $('chk-count').textContent = `${CHECKLIST.filter(([k]) => st[k]).length}/${CHECKLIST.length}`;
+      const done = CHECKLIST.filter(([k]) => st[k]).length;
+      $('chk-count').textContent = `${done} / ${CHECKLIST.length}`;
+      $('chk-bar').style.width = Math.round(done / CHECKLIST.length * 100) + '%';
     }
     function renderBookings() {
       $('booking-list').innerHTML = BOOKINGS.map(([tag, title, desc, node]) => {
         const links = NODES[node]?.links || [];
-        return `<div class="rounded-xl bg-slate-950 border border-slate-800 p-3">
-          <div class="text-xs font-bold ${tag.startsWith('⚠️') ? 'text-amber-300' : tag.startsWith('✅') ? 'text-emerald-300' : 'text-slate-400'}">${esc(tag)}</div>
-          <div class="font-bold">${esc(title)}</div>
-          <div class="text-sm text-slate-400">${esc(desc)}</div>
-          ${links.length ? `<div class="flex flex-wrap gap-3 mt-1">${links.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="text-sm text-sky-300 underline">${esc(l)} ↗</a>`).join('')}</div>` : ''}
+        const tone = tag.startsWith('⚠️') ? 'chip-warn' : tag.startsWith('✅') ? 'chip-ok' : 'chip-soft';
+        return `<div class="py-3 space-y-0.5">
+          <div class="flex items-start justify-between gap-3">
+            <span class="t15 font-bold leading-snug">${esc(noEmo(title))}</span>
+            <span class="chip ${tone} shrink-0 text-xs py-1">${esc(noEmo(tag))}</span>
+          </div>
+          <div class="t13 text-mute">${esc(desc)}</div>
+          ${links.length ? `<div class="flex flex-wrap gap-x-4">${links.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="link-red">${esc(l)}${ic('ext', 14)}</a>`).join('')}</div>` : ''}
         </div>`;
       }).join('');
     }
@@ -1458,8 +1839,8 @@
     // ================================================================
     function renderNet() {
       const on = navigator.onLine;
-      $('net-pill').textContent = on ? '● ออนไลน์' : '● ออฟไลน์';
-      $('net-pill').className = `text-xs font-bold px-2 py-1 rounded-full ${on ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`;
+      $('net-pill').innerHTML = `<span class="dot" style="background:${on ? '#10B981' : '#D8392B'}"></span>${on ? 'ออนไลน์' : 'ออฟไลน์'}`;
+      $('net-pill').className = `chip ${on ? 'chip-ok' : 'chip-bad'}`;
     }
     function applyBig(on) {
       document.documentElement.classList.toggle('big', !!on);
@@ -1482,7 +1863,7 @@
         case 'nav': navNode(el.dataset.node); break;
         case 'place': placeCard(el.dataset.node); break;
         case 'hotelcard': $('hotel-sheet').hidden = true; hotelCard(); break;
-        case 'hotelsheet': { const r = store.get('mtrx-room', ''); $('sheet-room').textContent = r ? `🔑 ห้องของฉัน: ${r}` : ''; $('hotel-sheet').hidden = false; buzz(); break; }
+        case 'hotelsheet': { const r = store.get('mtrx-room', ''); $('sheet-room').textContent = r ? `ห้องของฉัน: ${r}` : ''; $('hotel-sheet').hidden = false; buzz(); break; }
         case 'closesheet': $('hotel-sheet').hidden = true; break;
         case 'copy': copyText(el.dataset.text); break;
         case 'search': openInAmap(el.dataset.q, null, null); break;
@@ -1495,6 +1876,9 @@
           break;
         }
         case 'pcat': phraseCat = el.dataset.cat; renderPhrases(); break;
+        case 'cview': showCardView(el.dataset.v); break;
+        case 'trmode': showTrMode(el.dataset.v); break;
+        case 'openday': activeDay = +el.dataset.di; activeStop = -1; showTab('trip'); renderTrip(true); break;
         case 'phrase': phraseCard(el.dataset.key ? PHRASES.find(p => p.key === el.dataset.key) : PHRASES[+el.dataset.i]); break;
         case 'dcat': dictCat = el.dataset.cat; renderDict(); break;
         case 'dict': { const it = DICT[+el.dataset.i]; openCard({ label: '🔍 คำศัพท์', cn: it.cn, py: it.py, th: it.th }); speak(it.cn.split(' / ')[0]); break; }
@@ -1514,6 +1898,7 @@
         case 'cardtrans': if (trans) { openCard({ label: '🗣️ คำแปล', cn: trans.cn, th: trans.th }); speak(trans.cn); } break;
         case 'copytrans': if (trans) copyText(trans.cn); break;
         case 'offline': downloadOffline(); break;
+        case 'reload': location.reload(); break;
         case 'bigtext': { const on = !document.documentElement.classList.contains('big'); applyBig(on); store.set('mtrx-big', on); toast(on ? '🔠 ตัวอักษรใหญ่: เปิด (กด Aa อีกครั้งเพื่อปิด)' : '🔡 ตัวอักษรใหญ่: ปิด'); break; }
       }
     });
@@ -1525,6 +1910,7 @@
     document.addEventListener('input', e => {
       if (e.target.id === 'live-input') handleScanText(e.target.value);
       if (e.target.id === 'dict-q') renderDict();
+      if (e.target.id === 'place-q') renderCards();
       if (e.target.id === 'my-room') store.set('mtrx-room', e.target.value.trim());
     });
     window.addEventListener('online', renderNet);
@@ -1536,7 +1922,13 @@
     function boot() {
       applyBig(store.get('mtrx-big', false));
       renderNet();
-      $('near-grid').innerHTML = NEAR.map(([i, l, q]) => `<button data-act="search" data-q="${q}" class="h-16 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-sm font-bold"><span class="text-xl">${i}</span>${l}</button>`).join('');
+      fillIcons(document);
+      setMicUI(null);
+      $('near-grid').innerHTML = NEAR.map(([i, l, q, bg, fg]) => `
+        <button data-act="search" data-q="${q}" class="card rounded-[18px] min-h-[96px] px-1.5 py-3 flex flex-col items-center justify-center gap-1.5">
+          <span class="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-bold" style="background:${bg};color:${fg}">${i === 'wc' ? 'WC' : ic(i, 22)}</span>
+          <span class="t13 font-semibold leading-tight">${l}</span><span class="zh text-xs text-mute">${q}</span>
+        </button>`).join('');
       $('my-room').value = store.get('mtrx-room', '');
       const di = DAYS.findIndex(d => d.date === shDate(now()));
       activeDay = di >= 0 ? di : 0;
@@ -1552,7 +1944,15 @@
     }
     window.addEventListener('DOMContentLoaded', boot);
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(reg => {
+        // A home-screen app on iPhone is resumed, not reloaded — so look for a new version every time it comes back
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+      }).catch(() => {}));
+      let hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController) { hadController = true; return; } // first install, not an update
+        $('update-banner').hidden = false;
+      });
     }
   </script>
 </body>

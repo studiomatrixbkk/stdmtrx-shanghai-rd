@@ -1,11 +1,13 @@
 // Offline support for the STDMTRX Shanghai trip app.
 // Bump VERSION on every deploy so phones pick up the new shell.
-const VERSION = 'mtrx-2026-10-24e';
+const VERSION = 'mtrx-2026-10-24g';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './vendor/tailwind.css',
+  './vendor/fonts/anuphan-thai-wght-normal.woff2',
+  './vendor/fonts/anuphan-latin-wght-normal.woff2',
   './vendor/leaflet/leaflet.js',
   './vendor/leaflet/leaflet.css',
   './vendor/leaflet/images/layers.png',
