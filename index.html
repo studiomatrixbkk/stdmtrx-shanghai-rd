@@ -296,7 +296,7 @@
         <label class="search">
           <i data-ic="search" data-s="20"></i>
           <span class="sr">ค้นหาสถานที่</span>
-          <input id="place-q" type="search" autocomplete="off" placeholder="ค้นหา เช่น Disney, M50, 迪士尼" />
+          <input id="place-q" type="search" autocomplete="off" placeholder="ค้นหา เช่น Disney, Natural History, West Bund, 迪士尼" />
         </label>
         <button data-act="hotelcard" class="card-dark w-full text-left p-[18px] space-y-3 block">
           <span class="flex justify-between items-center gap-2">
@@ -493,7 +493,7 @@
         </div>
         <div class="flex gap-2 items-start rounded-[14px] bg-[#FFF3D6] text-[#5C3A10] px-3 py-2.5 t13 mt-1.5">
           <i data-ic="clock" data-s="16" class="mt-0.5"></i>
-          <span>นัดเจอ อา. 25 ต.ค. 22:45 (เวลาไทย) ที่สุวรรณภูมิ · วันกลับออกจาก รร. 17:15 · เคาน์เตอร์ปิด 20:00</span>
+          <span>นัดเจอ อา. 25 ต.ค. 22:45 (เวลาไทย) ที่สุวรรณภูมิ · วันกลับรับกระเป๋าที่ รร. 14:45–16:00 · ออกไปสนามบิน 16:00 · เคาน์เตอร์ปิด 20:00</span>
         </div>
         <p class="t13 text-mute pt-1.5">โหลดใต้เครื่อง 23 kg + ถือขึ้น 5 kg · เลข PNR ดูในอีเมลตั๋ว (ไม่แสดงบนเว็บเพื่อความปลอดภัย)</p>
       </section>
@@ -607,150 +607,151 @@
       pvg:      { name: 'สนามบินผู่ตง PVG T2', cn: '上海浦东国际机场T2航站楼', addr: '吉祥航空 出发层', lat: 31.14670, lng: 121.80696, icon: '✈️' },
       hotel:    { name: 'รร. Yitel Collection', cn: '和颐至尚酒店(上海火车站南广场店)', addr: '上海市静安区天目西路511号', lat: 31.24620, lng: 121.45120, icon: '🏨',
                   links: [['Trip.com', 'https://www.trip.com/hotels/shanghai-hotel-detail-48533183/']] },
-      louis:    { name: 'The Louis + Roastery (HKRI Taikoo Hui)', cn: '兴业太古汇 路易号', addr: '上海市静安区南京西路789号', lat: 31.22908, lng: 121.46267, icon: '🚢' },
-      haus:     { name: 'Gentle Monster HAUS NOWHERE', cn: 'GENTLE MONSTER HAUS NOWHERE(上海店)', addr: '上海市黄浦区淮海中路798号', lat: 31.21849, lng: 121.46269, icon: '🦾',
-                  links: [['เว็บ Gentle Monster', 'https://www.gentlemonster.com/int/store?id=shanghai-huaihai']] },
-      map:      { name: 'Museum of Art Pudong (MAP)', cn: '浦东美术馆', addr: '上海市浦东新区滨江大道2777号', lat: 31.23832, lng: 121.49643, icon: '🏛️',
-                  links: [['เว็บ MAP', 'https://www.museumofartpd.org.cn/en/index']] },
+      natmus:   { name: 'Shanghai Natural History Museum', cn: '上海自然博物馆', addr: '上海市静安区北京西路510号(静安雕塑公园内)', lat: 31.23630, lng: 121.45960, icon: '🦕',
+                  links: [['เว็บทางการ SNHM', 'https://www.snhm.org.cn/'], ['Trip.com', 'https://www.trip.com/travel-guide/attraction/shanghai/shanghai-natural-history-museum-10558970/']] },
+      louis:    { name: 'Jing’an Sculpture Park + The Louis & Roastery', cn: '静安雕塑公园 / 兴业太古汇 路易号', addr: '上海市静安区南京西路789号', lat: 31.22908, lng: 121.46267, icon: '🚢' },
+      vers:     { name: 'The VERS Immersive Center (博新全宇宙)', cn: '博新全宇宙The VERS沉浸式探索中心', addr: '上海市静安区南京西路789号兴业太古汇LG2层LG216', lat: 31.22908, lng: 121.46267, icon: '🥽',
+                  links: [['Trip.com (The VERS)', 'https://www.trip.com/travel-guide/attraction/shanghai/shanghai-boxin-universe-immersive-exploration-center-151597882'], ['Excurio: Life Chronicles', 'https://www.excurio.com/en/life-chronicles/'], ['Excurio: Horizon of Khufu', 'https://www.excurio.com/en/horizon-of-khufu/'], ['Excurio: Paris 1874', 'https://theimpressionists-experience.com/']] },
+      bund:     { name: 'The Bund (เดินชมวิวริมน้ำ)', cn: '外滩', addr: '上海市黄浦区中山东一路', lat: 31.24020, lng: 121.49050, icon: '🌉' },
+      lailai:   { name: 'Lai Lai Xiao Long / Da Hu Chun + Nanjing East', cn: '莱莱小笼·乔艾 / 大壶春 / 南京东路步行街', addr: '天津路506号 (莱莱小笼) / 四川中路136号 (大壶春)', lat: 31.23740, lng: 121.48350, icon: '🥟' },
+      popmart:  { name: 'Pop Mart Global Flagship (Nanjing E.)', cn: '泡泡玛特全球旗舰店(宏伊国际广场)', addr: '上海市黄浦区南京东路299号', lat: 31.23680, lng: 121.48451, icon: '🧸' },
       disney:   { name: 'Shanghai Disneyland (จุดลงรถ West Hub)', cn: '上海迪士尼乐园', addr: '西侧公共交通枢纽（网约车下客点）', lat: 31.13902, lng: 121.65947, icon: '🎢' },
-      m50:      { name: 'M50 Creative Park', cn: 'M50创意园', addr: '上海市普陀区莫干山路50号', lat: 31.24800, lng: 121.44927, icon: '🎨' },
-      psa:      { name: 'Power Station of Art (PSA)', cn: '上海当代艺术博物馆', addr: '上海市黄浦区花园港路200号', lat: 31.20097, lng: 121.49836, icon: '💎',
-                  links: [['เว็บ PSA', 'https://www.powerstationofart.com/']] },
-      westbund: { name: 'West Bund Museum', cn: '西岸美术馆', addr: '上海市徐汇区龙腾大道2600号', lat: 31.16765, lng: 121.46389, icon: '🖥️' },
+      longmus:  { name: 'Long Museum West Bund / TANK Shanghai', cn: '龙美术馆(西岸馆) / 油罐艺术中心', addr: '上海市徐汇区龙腾大道3398号 (油罐艺术中心: 龙腾大道2380号)', lat: 31.18620, lng: 121.46310, icon: '🏛️',
+                  links: [['เว็บ TANK Shanghai', 'https://www.tankshanghai.com/']] },
       tank:     { name: 'TANK Shanghai', cn: '油罐艺术中心', addr: '上海市徐汇区龙腾大道2380号', lat: 31.16487, lng: 121.46334, icon: '🛢️',
                   links: [['เว็บ TANK', 'https://www.tankshanghai.com/']] },
-      gatem:    { name: 'Gate M West Bund Dream Center', cn: '西岸梦中心', addr: '上海市徐汇区龙腾大道 徐汇滨江', lat: 31.16040, lng: 121.46614, icon: '🌇' },
-      daning:   { name: 'Daning International Plaza', cn: '大宁国际商业广场', addr: '上海市静安区共和新路1878号', lat: 31.27412, lng: 121.45230, icon: '🍜' },
-      era2:     { name: 'Shanghai Circus World (ERA 2)', cn: '上海马戏城', addr: '上海市静安区共和新路2266号', lat: 31.27994, lng: 121.45190, icon: '🎪',
-                  links: [['Klook (ERA)', 'https://www.klook.com/th/activity/2161-era-intersection-of-time-shanghai/']] },
+      gatem:    { name: 'Gate M West Bund Dream Center', cn: '西岸梦中心', addr: '上海市徐汇区龙腾大道2266号(徐汇滨江)', lat: 31.16040, lng: 121.46614, icon: '🌇' },
+      westbund: { name: 'West Bund Museum', cn: '西岸美术馆', addr: '上海市徐汇区龙腾大道2600号', lat: 31.16765, lng: 121.46389, icon: '🖥️' },
+      wukang:   { name: 'Wukang Road – Anfu Road', cn: '武康路—安福路 (武康大楼)', addr: '上海市徐汇区武康路/安福路', lat: 31.20960, lng: 121.43850, icon: '☕' },
+      haus:     { name: 'Gentle Monster HAUS NOWHERE', cn: 'GENTLE MONSTER HAUS NOWHERE(上海店)', addr: '上海市黄浦区淮海中路798号', lat: 31.21849, lng: 121.46269, icon: '🦾',
+                  links: [['เว็บ Gentle Monster', 'https://www.gentlemonster.com/int/store?id=shanghai-huaihai']] },
+      renhe:    { name: 'Ren He Guan สาขา Xuhui (人和馆)', cn: '人和馆(肇嘉浜路店)', addr: '上海市徐汇区肇嘉浜路407号', lat: 31.20080, lng: 121.45620, icon: '🥢' },
       ins:      { name: 'INS 新乐园 @ Fuxing Park', cn: 'INS新乐园', addr: '上海市黄浦区雁荡路109号（复兴公园内）', lat: 31.21786, lng: 121.47025, icon: '🎛️' },
-      urban:    { name: 'Urban Planning Exhibition Center', cn: '上海城市规划展示馆', addr: '上海市黄浦区人民大道100号', lat: 31.2314, lng: 121.4748, icon: '🖥️' },
-      asia:     { name: 'Asia Mansion (Star Space)', cn: '亚洲大厦', addr: '上海市黄浦区延安东路', lat: 31.2345, lng: 121.4774, icon: '🎭' },
-      popmart:  { name: 'Pop Mart Global Flagship (Nanjing E.)', cn: '泡泡玛特 宏伊国际广场', addr: '上海市黄浦区南京东路299号', lat: 31.23680, lng: 121.48451, icon: '🧸' },
-      foto:     { name: 'Fotografiska Shanghai', cn: 'Fotografiska影像艺术中心', addr: '上海市静安区光复路127号', lat: 31.23976, lng: 121.46983, icon: '📸',
-                  links: [['เว็บ Fotografiska', 'https://shanghai.fotografiska.com/en']] },
-      suhewan:  { name: 'Suhewan MixC World', cn: '苏河湾万象天地', addr: '上海市静安区福建北路100号', lat: 31.24243, lng: 121.47839, icon: '🛍️' }
+      map:      { name: 'Museum of Art Pudong (MAP)', cn: '浦东美术馆', addr: '上海市浦东新区滨江大道2777号', lat: 31.23832, lng: 121.49643, icon: '🖼️',
+                  links: [['เว็บ MAP', 'https://www.museumofartpd.org.cn/en/index']] },
+      lujiazui: { name: 'Lujiazui & ริมน้ำ Pudong', cn: '陆家嘴 / 滨江大道', addr: '上海市浦东新区陆家嘴滨江大道', lat: 31.23950, lng: 121.49950, icon: '🌆' },
+      temple:   { name: 'Temple of Light (光廷) North Bund', cn: '光廷Temple of Light', addr: '上海市虹口区东大名路598号', lat: 31.24950, lng: 121.49850, icon: '✨' }
     };
 
-    // Plan B (Antigravity, 24 Oct 02:25) with fixes from the fact-check.
-    // Times are Shanghai local time (UTC+8). '25:30' = 01:30 the next morning.
+    // Final Agreed 4-Day Itinerary (Updated 25 Oct 2026).
+    // Times are Shanghai local time (UTC+8). '24:00' = midnight.
     const DAYS = [
       {
-        date: '2026-10-26', dow: 'จ.', color: '#2457D6', tint: '#EAF0FF', dot: '#7EA6FF', pop: '#7DB7FF', title: 'Experiential Retail • Animatronics • MAP & ไฟริมน้ำ', lobby: null,
+        date: '2026-10-26', dow: 'จ.', color: '#2457D6', tint: '#EAF0FF', dot: '#7EA6FF', pop: '#7DB7FF', title: 'Natural History • The VERS VR • ของกิน • The Bund', lobby: null,
         stops: [
-          { node: 'pvg', start: '06:55', end: '08:30', title: 'ถึง PVG T2 • ผ่าน ตม. • รับกระเป๋า',
+          { node: 'pvg', start: '06:55', end: '09:30', title: 'ลงเครื่อง PVG T2 • เข้าเมือง • ฝากกระเป๋าโรงแรม',
             move: '✈️ HO1358 ออก BKK 01:45 → ถึง PVG T2 06:55',
-            why: 'ผ่าน ตม. (กรอกบัตรขาเข้าออนไลน์ไว้ก่อน) • รับกระเป๋า • เรียก DiDi 六座商务 (รถ 6 ที่นั่ง) ไปโรงแรม',
+            why: 'ผ่าน ตม. (กรอกบัตรขาเข้าออนไลน์ไว้ก่อน) • รับกระเป๋า • เรียก DiDi 6 ที่นั่ง (六座商务) เข้าเมืองไปฝากกระเป๋าและล้างหน้าพักผ่อนที่ รร. Yitel Collection',
             tip: 'ปิด Wi-Fi สนามบิน ใช้โรมมิ่ง • กดปุ่ม 🏨 กลับ รร. เพื่อโชว์ป้ายให้คนขับ' },
-          { node: 'hotel', start: '09:15', end: '11:30', title: 'ฝากกระเป๋าที่ รร. + มื้อสาย',
+          { node: 'hotel', start: '09:30', end: '10:45', title: 'พักและกินมื้อสายควบกลางวัน (Brunch) เผื่อเวลาหลังไฟลต์ดึก',
             move: '🚐 DiDi 6 ที่นั่ง • ~46 กม. • 60–75 นาทีช่วงเช้า',
-            why: 'ฝากกระเป๋าที่ล็อบบี้ (เข้าห้องจริงหลัง 15:00) • ล้างหน้า เติมพลัง',
+            why: 'ฝากกระเป๋าที่ล็อบบี้ (เข้าห้องจริงหลัง 15:00) • พักและกินมื้อสายควบกลางวันแถวโรงแรม เผื่อเวลาสบายๆ หลังไฟลต์ดึก',
             food: { th: 'Yang\'s Fry-Dumpling (小杨生煎) ซาลาเปาทอดน้ำซุป — สาขาใกล้ รร.', cn: '小杨生煎' } },
-          { node: 'louis', start: '12:00', end: '14:15', title: '"The Louis" (ตึกเรือ LV) + Starbucks Reserve Roastery + Zhangyuan',
-            move: '🚐 DiDi ~3 กม. (~10 นาที)',
-            why: 'ตึกเรือสำราญหุ้มโลหะ Monogram ของ Louis Vuitton หน้า HKRI Taikoo Hui • ถังคั่วทองแดงยักษ์ของ Roastery • ย่านบ้านอิฐ Zhangyuan (张园 ข้างกัน)',
-            tip: 'The Louis อาจต้องจองคิวใน WeChat mini program "我的专属LV" (ข้อมูลปี 2025)',
-            food: { th: 'กาแฟ/เบเกอรี่ที่ Roastery หรือคาเฟ่ย่าน Zhangyuan', cn: '星巴克臻选上海烘焙工坊' } },
-          { node: 'haus', start: '14:30', end: '17:00', title: 'HAUS NOWHERE (Gentle Monster 4 ชั้น) + TX Huaihai',
-            move: '🚐 DiDi ~2.5 กม. (~10 นาที)',
-            why: 'หุ่นจักรกล Hyper-realistic Animatronics 4 ชั้น • จอ Spatial LED & Youth Curation Mall ที่ TX Huaihai',
-            food: { th: 'ขนมอาร์ต 3D ที่ NUDAKE (ในตึก)', cn: 'NUDAKE' } },
-          { node: 'map', start: '17:30', end: '20:45', title: 'Museum of Art Pudong (MAP) + ไฟริมน้ำ + ดินเนอร์วิว The Bund',
-            move: '🚐 DiDi ลอดอุโมงค์ข้ามแม่น้ำ (~25–35 นาทีช่วงเย็น)',
-            why: 'งานไฟริมน้ำ Lanterns Light Riverside • Giorgio Morandi • la Galerie du 19M (ถึง 15 พ.ย.) • โถงกระจก Mirrored Hall สะท้อนไฟ The Bund',
-            tip: 'เปิดถึง 21:00 (เข้าครั้งสุดท้าย 20:00)',
-            food: { th: 'มื้อค่ำริมแม่น้ำ ย่าน Lujiazui', cn: '陆家嘴 滨江 餐厅' } },
-          { node: 'hotel', start: '21:00', end: '21:30', title: 'กลับ รร. พักผ่อน', move: '🚐 DiDi ~25 นาที',
-            why: 'นอนเต็มอิ่ม พรุ่งนี้ Disneyland นัดล็อบบี้ 07:30' }
+          { node: 'natmus', start: '11:00', end: '13:30', title: 'Shanghai Natural History Museum (上海自然博物馆)',
+            move: '🚐 DiDi ~2.5 กม. (~8–10 นาทีจาก รร.)',
+            why: 'ขยับมาเริ่มเที่ยว 11:00 น. ให้เวลา 2.5–3 ชม. ดูได้สบาย ช่วงเที่ยงคนไม่แน่น • โถงสถาปัตยกรรม Bionic, หุ่นไดโนเสาร์ Animatronics & Projection Mapping',
+            tip: 'เปิดวันจันทร์ 09:00–17:00 (ปิดวันอังคาร) • จองคิวด้วยพาสปอร์ตล่วงหน้าใน WeChat: 上海自然博物馆' },
+          { node: 'louis', start: '13:30', end: '15:00', title: 'เดิน Jing’an Sculpture Park • ตึกเรือ LV "The Louis" & พักกาแฟ',
+            move: '🚶 เดินทะลุสวน Jing\'an Sculpture Park ~5–8 นาที ถึงห้าง HKRI Taikoo Hui',
+            why: 'เดินเล่นผ่านสวนประติมากรรม Jing’an Sculpture Park ข้ามไปชมตึกเรือสำราญ LV "The Louis" และพักจิบกาแฟ/ของว่างที่ Starbucks Reserve Roastery หน้าห้าง HKRI Taikoo Hui',
+            food: { th: 'กาแฟ/เบเกอรี่ที่ Starbucks Reserve Roastery หน้าห้าง HKRI Taikoo Hui', cn: '星巴克臻选上海烘焙工坊' } },
+          { node: 'vers', start: '15:00', end: '16:15', title: 'The VERS Immersive Center (博新全宇宙) — Free-Roam VR',
+            move: '🚶 ลงบันไดเลื่อนในห้าง HKRI Taikoo Hui ไปชั้น LG2 (ห้อง LG216)',
+            why: 'นิทรรศการ Large-Scale Free-Roam VR สวมแว่นเดินสำรวจพื้นที่จริงพร้อมกันทั้งแก๊ง 6 คน รอบละ 45 นาที (เรื่อง Life Chronicles ท่องโลกดึกดำบรรพ์ / Horizon of Khufu / Paris 1874)',
+            tip: 'อยู่ชั้น LG2 ห้อง LG216 ในตึกเดียวกับ Roastery & LV • จองตั๋วล่วงหน้าผ่าน Trip.com หรือ WeChat: 博新全宇宙' },
+          { node: 'bund', start: '17:00', end: '18:00', title: 'The Bund (外滩) เดินชมวิวช่วงเย็น',
+            move: '🚐 DiDi ~3.5 กม. (~12–15 นาที)',
+            why: 'เดินรับลมชมวิวริมแม่น้ำหวงผู่ช่วงเย็น ทันแสงพระอาทิตย์ตก (~17:10 น.) ต่อเนื่องถึงจังหวะไฟตึกฝั่ง Lujiazui และ The Bund เปิดพร้อมกัน' },
+          { node: 'lailai', start: '18:00', end: '19:30', title: 'กินเย็น (Lai Lai Xiao Long หรือ Da Hu Chun) + เดิน Nanjing East Road',
+            move: '🚶 เดินจาก The Bund เข้าถนนคนเดิน Nanjing East',
+            why: 'มื้อเย็นเลือก 1 ร้านเป็นมื้อหลัก จะไม่ต้องเร่งกินหลายจุด: Lai Lai Xiao Long (506 Tianjin Rd.) สำหรับเสี่ยวหลงเปามันปู หรือ Da Hu Chun (136 Middle Sichuan Rd.) สำหรับเซิงเจียนเปาก้นกรอบ แล้วเดินเล่น Nanjing East Road แวะดูตึกไฟ Pop Mart Global Flagship',
+            food: { th: 'เลือก 1 ร้านหลัก: Lai Lai Xiao Long (506 Tianjin Rd.) หรือ Da Hu Chun (136 Middle Sichuan Rd.)', cn: '莱莱小笼(天津路506号) / 大壶春(四川中路136号)' } },
+          { node: 'hotel', start: '20:00', end: '21:00', title: 'กลับโรงแรม พักก่อนวัน Disney',
+            move: '🚐 DiDi ~15 นาทีกลับ รร. Yitel Collection',
+            why: 'เช็กอินรับกุญแจเข้าห้อง พักผ่อนเต็มอิ่มก่อนลุยวัน Disney พรุ่งนี้ (นัดล็อบบี้ 07:30)' }
         ]
       },
       {
-        date: '2026-10-27', dow: 'อ.', color: '#8A2BD9', tint: '#F3E9FF', dot: '#C38BFF', pop: '#C3A1FF', title: 'Shanghai Disneyland • ช่วงเทศกาลฮาโลวีน', lobby: '07:30',
+        date: '2026-10-27', dow: 'อ.', color: '#8A2BD9', tint: '#F3E9FF', dot: '#C38BFF', pop: '#C3A1FF', title: 'Disney เต็มวัน • กินและเที่ยวในสวนสนุก • โชว์พลุ', lobby: '07:30',
         stops: [
-          { node: 'hotel', start: '07:30', end: '08:20', title: 'นัดล็อบบี้ ออกไป Disneyland',
-            why: 'พกพาสปอร์ตตัวจริงทุกคน (ตั๋วผูกกับพาสปอร์ต) • พาวเวอร์แบงก์ • เปิดแอป Shanghai Disney Resort',
+          { node: 'hotel', start: '07:30', end: '08:20', title: 'กินเช้าก่อนออก • นัดล็อบบี้ไป Disneyland',
+            why: 'พกพาสปอร์ตตัวจริงทุกคน (ตั๋วผูกกับพาสปอร์ต) • พาวเวอร์แบงก์ • เปิดแอป Shanghai Disney Resort • วันนี้เที่ยวและกินในสวนสนุกเต็มวัน ไม่แทรกพิพิธภัณฑ์หรือร้านในเมือง',
             tip: 'ไปถึงตอนเปิดพาร์ค — คิว Zootopia ช่วงสายรอ 2–3 ชม.',
-            food: { th: 'อาหารเช้าร้านสะดวกซื้อหน้า รร.', cn: '全家便利店' } },
-          { node: 'disney', start: '08:30', end: '16:30', title: 'Disneyland: Zootopia + Pirates',
+            food: { th: 'กินเช้าก่อนออกจากโรงแรม', cn: '全家便利店 / 早餐' } },
+          { node: 'disney', start: '08:30', end: '16:30', title: 'Shanghai Disneyland: Zootopia + Pirates of the Caribbean',
             move: '🚐 DiDi 6 ที่นั่ง • ~30 กม. (~50 นาที) • ลงที่ West Hub (จุดลงรถแอป)',
             why: 'Zootopia: Hot Pursuit (Trackless Ride + Animatronics — กด Premier Access ในแอป) • Pirates of the Caribbean (IMAX Dome + เรือแม่เหล็ก)' },
-          { node: 'disney', start: '16:30', end: '17:45', title: 'มื้อเย็นที่ Disneytown',
-            why: 'ออกมากินแล้วกลับเข้าพาร์คได้ (โชว์พาสปอร์ตตัวจริง)',
-            food: { th: 'ร้านอาหารใน Disneytown', cn: '迪士尼小镇' } },
-          { node: 'disney', start: '17:45', end: '20:30', title: 'TRON รอบมืด + ขบวนฮาโลวีน + ILLUMINATE!',
-            why: 'TRON Lightcycle Power Run ตอนมืด (ไฟ Canopy LED) • Donald\'s Halloween Treat Cavalcade • ILLUMINATE! projection บนปราสาท',
-            tip: 'เวลาขบวนและโชว์ ILLUMINATE! เช็กในแอป Disney วันนั้น' },
-          { node: 'hotel', start: '21:30', end: '22:30', title: 'กลับ รร.', move: '🚐 DiDi ~50 นาที (เรียกที่ West Hub)',
-            why: 'พักผ่อน พรุ่งนี้นัดล็อบบี้ 10:15',
-            food: { th: 'มื้อดึกหม่าล่าทั่ง (เช่น 杨国福麻辣烫) แถว รร.', cn: '杨国福麻辣烫' } }
+          { node: 'disney', start: '16:30', end: '17:45', title: 'มื้อเย็นในสวนสนุก หรือ Disneytown',
+            why: 'ออกมากินที่ Disneytown แล้วกลับเข้าพาร์คได้ (โชว์พาสปอร์ตตัวจริง)',
+            food: { th: 'ร้านอาหารในสวนสนุก หรือ Disneytown', cn: '迪士尼小镇' } },
+          { node: 'disney', start: '17:45', end: '20:30', title: 'TRON รอบมืด + ขบวนฮาโลวีน + โชว์ปราสาท ILLUMINATE!',
+            why: 'TRON Lightcycle Power Run ตอนมืด (ไฟ Canopy LED) • Donald\'s Halloween Treat Cavalcade • ILLUMINATE! projection mapping บนปราสาท',
+            tip: 'กลับหลังโชว์ตามเวลาเปิดจริง (เช็กเวลาขบวนและโชว์พลุในแอป Disney วันนั้น)' },
+          { node: 'hotel', start: '21:00', end: '22:00', title: 'กลับโรงแรมหลังจบโชว์',
+            move: '🚐 DiDi ~50 นาที (เรียกที่จุด West Hub)',
+            why: 'พักผ่อนเต็มอิ่ม พรุ่งนี้กินเช้า 09:00 น. (นัดล็อบบี้ 10:00)' }
         ]
       },
       {
-        date: '2026-10-28', dow: 'พ.', color: '#B45309', tint: '#FFF3D6', dot: '#FFB020', pop: '#FF9F43', title: 'M50 • Bvlgari Kaleidos • West Bund • ERA 2 • INS', lobby: '10:15',
+        date: '2026-10-28', dow: 'พ.', color: '#B45309', tint: '#FFF3D6', dot: '#FFB020', pop: '#FF9F43', title: 'West Bund + เดินย่านดีไซน์ Wukang–Anfu + อาหารเซี่ยงไฮ้ Ren He Guan', lobby: '10:00',
         stops: [
-          { node: 'm50', start: '10:30', end: '12:00', title: 'M50 Creative Park (Island6 & แกลเลอรี)',
-            move: '🚶 เดินจาก รร. ~900 ม. (10–12 นาที)',
-            why: 'ย่านโรงงานศิลปะร่วมสมัย • งาน LED Matrix & Interactive Art ที่ Island6 (六岛艺术中心) และแกลเลอรีอื่นๆ' },
-          { node: 'psa', start: '13:00', end: '15:00', title: 'Power Station of Art — Bvlgari "Kaleidos"',
-            move: '🚐 DiDi ~8 กม. (~25 นาที) • แวะมื้อเที่ยงระหว่างทาง',
-            why: 'Exhibition Scenography & Light Installation โดย SANAA × Formafantasma (ถึง 31 ต.ค.)',
-            tip: 'เปิด อ.–อา. 11:00–19:00',
-            food: { th: 'มื้อเที่ยงก่อนเข้า: บะหมี่ซอสงา 味香斋 (Michelin Selected) สาขาถนน Yandang', cn: '味香斋(雁荡路店)' } },
-          { node: 'westbund', start: '15:30', end: '16:30', title: 'West Bund Museum — Computer Worlds',
-            move: '🚐 DiDi ~6 กม. (~15 นาที)',
-            why: 'นิทรรศการดิจิทัล Computer Worlds (Centre Pompidou x West Bund)',
-            tip: 'ปิด 17:00 — มาที่นี่ก่อน TANK' },
-          { node: 'tank', start: '16:30', end: '17:30', title: 'TANK Shanghai — Action, Matter',
-            move: '🚶 เดินเลียบแม่น้ำ ~400 ม.',
-            why: 'งานศิลปะในถังน้ำมันเครื่องบินเก่า',
-            tip: 'เข้าครั้งสุดท้าย 17:30' },
-          { node: 'gatem', start: '17:30', end: '17:50', title: 'Gate M West Bund Dream Center (MVRDV)',
-            why: 'โรงงานปูนซีเมนต์ริมน้ำที่ MVRDV ดัดแปลง • พระอาทิตย์ตกราว 17:10',
-            food: { th: 'กาแฟริมน้ำที่ Gate M', cn: '西岸梦中心 咖啡' } },
-          { node: 'daning', start: '18:30', end: '19:15', title: 'มื้อเย็นห้าง Daning (เดิน 8–10 นาทีถึงโรงละคร)',
-            move: '🚐 DiDi ~20 กม. (40–50 นาทีช่วงเร่งด่วน)',
-            why: 'กินให้เสร็จก่อน 19:15 แล้วเดินไป Circus World',
-            food: { th: 'ร้านในห้าง Daning (เช่น 陈香贵 / 费大厨)', cn: '大宁国际商业广场' } },
-          { node: 'era2', start: '19:30', end: '21:00', title: 'ERA 2: Spirit of Shanghai (时空之旅2)',
-            why: '360° Projection Mapping บนฉากกลไก + ม่านน้ำ + มอเตอร์ไซค์ในลูกโลกเหล็ก',
-            tip: 'ต้องซื้อตั๋วรอบ พ. 28 ต.ค. 19:30 (วันจันทร์ไม่มีรอบแสดง)' },
-          { node: 'ins', start: '21:45', end: '25:30', title: 'INS 新乐园 @ Fuxing Park',
-            move: '🚐 DiDi ~8 กม. (~25 นาที)',
-            why: 'ตึกคลับ 6 ชั้น (RADI / La Fin / Culture Club) • Kinetic Winch LED • Laser • Funktion-One • สัปดาห์ฮาโลวีน',
+          { node: 'hotel', start: '09:00', end: '10:00', title: 'กินเช้า • เตรียมตัวออกเดินทาง (นัดล็อบบี้ 10:00)',
+            why: 'กินมื้อเช้าสบายๆ แถวโรงแรม ก่อนออกไปย่านศิลปะริมแม่น้ำ West Bund',
+            food: { th: 'มื้อเช้าที่โรงแรม หรือร้านแถวโรงแรม', cn: '早餐' } },
+          { node: 'longmus', start: '10:30', end: '12:30', title: 'Long Museum West Bund (หรือ TANK Shanghai + Gate M)',
+            move: '🚐 DiDi ~12 กม. (~25–30 นาที)',
+            why: 'ชมสถาปัตยกรรมคอนกรีต Vault Structure ที่ Long Museum West Bund (龙美术馆西岸馆) • หรือเลือกชมงาน Interactive Art ในถังน้ำมันเครื่องบินเก่า TANK Shanghai (油罐艺术中心) คู่กับโรงงานปูนซีเมนต์ริมน้ำ Gate M West Bund Dream Center (ออกแบบโดย MVRDV)',
+            tip: 'สองพิพิธภัณฑ์วันนี้อยู่ในย่าน West Bund เหมือนกัน แต่ห่างกัน ~2.5 กม. ต้องเผื่อเวลาเดินทางระหว่างแห่งด้วย' },
+          { node: 'gatem', start: '12:30', end: '14:00', title: 'กินกลางวัน & พักกาแฟริมน้ำ West Bund',
+            move: '🚐 DiDi ~5 นาที จาก Long Museum มาโซน Gate M / West Bund Museum',
+            why: 'พักกินกลางวันและจิบกาแฟรับลมริมแม่น้ำหวงผู่ในโซน Gate M West Bund Dream Center',
+            food: { th: 'ร้านอาหารและคาเฟ่ริมน้ำโซน Gate M West Bund', cn: '西岸梦中心 餐厅/咖啡' } },
+          { node: 'westbund', start: '14:00', end: '16:00', title: 'West Bund Museum หรือเลือกเดินริมน้ำแทน',
+            move: '🚶 เดินเลียบแม่น้ำ ~400–600 ม.',
+            why: 'เจาะงานตรงสายใน West Bund Museum: ชั้น B1 นิทรรศการ Prehistoric Planet (360° Immersive Projection) และ Gallery 3 นิทรรศการดิจิทัล Computer Worlds • หรือเลือกเดินเล่นริมน้ำแทน ถ้าอยากดูงานแบบไม่แน่น',
+            tip: 'เปิด 10:00–17:00' },
+          { node: 'wukang', start: '16:30', end: '18:00', title: 'Wukang Road – Anfu Road ดูอาคาร ร้านดีไซน์ และคาเฟ่',
+            move: '🚐 DiDi ~5.5 กม. (~15–20 นาที)',
+            why: 'เดินชมอาคารประวัติศาสตร์ Wukang Mansion ตึกหัวมุมสุดไอคอนิก ต่อเนื่องถนนสายดีไซน์ Anfu Road รวม Concept Store ร้านดีไซน์ และคาเฟ่ (หรือแวะชมหุ่น Animatronics ที่ HAUS NOWHERE ถนน Huaihai)',
+            food: { th: 'คาเฟ่และเบเกอรี่ย่าน Wukang Road – Anfu Road', cn: '武康路 安福路 咖啡' } },
+          { node: 'renhe', start: '18:30', end: '20:00', title: 'อาหารเซี่ยงไฮ้ที่ Ren He Guan (人和馆) สาขา Xuhui',
+            move: '🚐 DiDi ~2.5 กม. (~10 นาที) ไป 407 Zhaojiabang Road',
+            why: 'อาหารเซี่ยงไฮ้ต้นตำรับ (Benbang Cuisine) การันตี 1 ดาวมิชลิน ในบรรยากาศย้อนยุค Old Shanghai ยุค 1930s • เมนูซิกเนเจอร์: ข้าวคลุกมันปูทองคำ (蟹粉捞饭) และหมูสามชั้นตุ๋นซอสแดง',
+            tip: 'อยู่ที่ 407 Zhaojiabang Road (肇嘉浜路407号) • คิวยาวมาก ควรจองล่วงหน้า',
+            food: { th: 'Ren He Guan (人和馆) สาขา Xuhui — 407 Zhaojiabang Road', cn: '人和馆(肇嘉浜路店) 肇嘉浜路407号' } },
+          { node: 'ins', start: '20:30', end: '24:00', title: 'หลังอาหาร: ดื่มต่อได้ตามกำลัง @ INS 新乐园',
+            move: '🚐 DiDi ~3 กม. (~10 นาทีจากร้าน Ren He Guan)',
+            why: 'ดื่มต่อตามกำลังที่ตึกคลับคอมเพล็กซ์ 6 ชั้น INS 新乐园 @ Fuxing Park (ชมระบบไฟ Kinetic Winch LED, Laser & Funktion-One) หรือบาร์ชิลล์ย่าน Xuhui',
             tip: '18+ พกพาสปอร์ตตัวจริง • เช็ก line-up ใน WeChat: INS新乐园' }
         ]
       },
       {
-        date: '2026-10-29', dow: 'พฤ.', color: '#047857', tint: '#DDF6EC', dot: '#34D399', pop: '#5BE0A8', title: 'Urban Planning 3D • Pop Mart • Fotografiska • บินกลับ', lobby: '09:00',
+        date: '2026-10-29', dow: 'พฤ.', color: '#047857', tint: '#DDF6EC', dot: '#34D399', pop: '#5BE0A8', title: 'Museum of Art Pudong (MAP) + กลับไฟลต์ 21:00 น.', lobby: '09:00',
         stops: [
-          { node: 'hotel', start: '09:00', end: '09:15', title: 'เช็กเอาต์ + ฝากกระเป๋าที่ล็อบบี้',
-            why: 'ฝากกระเป๋าไว้ที่ front desk ถึง 17:15 (การ์ดคำพูดอยู่ในแท็บ ป้ายจีน > โรงแรม)' },
-          { node: 'urban', start: '09:45', end: '11:45', title: 'Urban Planning Exhibition Center (3D)',
-            move: '🚐 DiDi ~4 กม. (~15 นาที)',
-            why: 'จอโค้ง Naked-Eye 3D LED • โมเดลเมือง Digital Twin & AR • ห้อง 5D Dome',
-            tip: 'เข้าฟรีแต่ต้องจองล่วงหน้าใน WeChat mini program ด้วยพาสปอร์ต • เข้าครั้งสุดท้าย 16:00',
-            food: { th: 'มื้อเช้า 大壶春 (Bib Gourmand) สาขาถนน Sichuan Middle', cn: '大壶春(四川中路店)' } },
-          { node: 'asia', start: '12:00', end: '12:45', title: 'Asia Mansion (Star Space)',
-            move: '🚶 เดิน ~400 ม.',
-            why: 'ตึกออฟฟิศที่ดัดแปลงเป็นโรงละคร Immersive กว่า 20 ห้อง',
-            tip: 'รอบแสดงส่วนใหญ่เป็นช่วงเย็น — ตอนกลางวันเป็นการเดินดูตึก' },
-          { node: 'popmart', start: '13:00', end: '14:00', title: 'Pop Mart Global Flagship (Nanjing East)',
-            move: '🚶 เดิน ~1 กม. ไปถนนคนเดิน Nanjing East',
-            why: 'Spatial Retail Design ของ Flagship Art Toy • ช้อปของฝาก',
-            food: { th: 'ชานม Chagee (霸王茶姬) / Heytea (喜茶) ย่าน Nanjing East', cn: '霸王茶姬' } },
-          { node: 'foto', start: '14:15', end: '15:45', title: 'Fotografiska Shanghai',
-            move: '🚐 DiDi ~2.5 กม. (~10 นาที)',
-            why: '3 นิทรรศการใหม่: Tan Yingjie • Huang Jingyao • Robert Zhao Renhui — Exhibition Lighting ริมคลอง Suzhou',
-            tip: 'เปิดทุกวัน 10:30–23:00' },
-          { node: 'suhewan', start: '15:45', end: '16:50', title: 'มื้อเย็นเร็ว Suhewan MixC',
-            move: '🚶 เดิน ~850 ม.',
-            why: 'ห้างกึ่งสวนสาธารณะใต้ดินริมคลอง • กินให้เสร็จแล้วกลับ รร.',
-            food: { th: 'ร้านในห้าง Suhewan MixC', cn: '苏河湾万象天地' } },
-          { node: 'hotel', start: '17:15', end: '17:30', title: 'รับกระเป๋า → สนามบิน PVG T2',
-            why: 'ออกตรงเวลา! เคาน์เตอร์เช็กอินปิด 20:00' },
-          { node: 'pvg', start: '18:45', end: '21:00', title: 'เช็กอิน HO1357 • บินกลับ 21:00',
-            move: '🚐 DiDi/รถตู้ ~46 กม. • 60–90 นาทีช่วงเร่งด่วน',
-            why: 'ถึงสุวรรณภูมิ 00:45 (ศ. 30 ต.ค.)' }
+          { node: 'hotel', start: '08:00', end: '09:00', title: 'กินเช้า • เช็กเอาต์ • ฝากกระเป๋าโรงแรม',
+            why: 'กินเช้า เช็กเอาต์คืนห้อง และฝากกระเป๋าไว้ที่ล็อบบี้โรงแรม Yitel Collection (นัดมารับกระเป๋า 14:45–16:00)',
+            tip: 'การ์ดคำพูดภาษาจีนสำหรับฝากกระเป๋าอยู่ในแท็บ ป้ายจีน > โรงแรม',
+            food: { th: 'มื้อเช้าที่โรงแรม หรือร้านแถวโรงแรม', cn: '早餐' } },
+          { node: 'map', start: '10:00', end: '13:00', title: 'Museum of Art Pudong (浦东美术馆)',
+            move: '🚐 DiDi ลอดอุโมงค์ข้ามแม่น้ำ ~7 กม. (~25–30 นาที)',
+            why: 'ให้เวลาเต็มอิ่ม 3 ชั่วโมง (เปิด 10:00 น.): ชมนิทรรศการ Giorgio Morandi: Solo • งานไฟริมน้ำ Lanterns Light Riverside • โถงกระจก Mirrored Hall สะท้อนวิวฝั่ง The Bund',
+            tip: 'เปิดทุกวัน 10:00–21:00' },
+          { node: 'lujiazui', start: '13:00', end: '14:00', title: 'กินกลางวันย่าน Lujiazui (陆家嘴)',
+            move: '🚶 เดินจาก MAP ~5–10 นาที',
+            why: 'กินมื้อกลางวันในย่านตึกระฟ้า Lujiazui (ห้าง Shanghai IFC Mall / Super Brand Mall หรือร้านอาหารริมน้ำ Pudong)',
+            food: { th: 'ร้านอาหารย่าน Lujiazui / ห้าง IFC Mall', cn: '陆家嘴 国金中心商场' } },
+          { node: 'lujiazui', start: '14:00', end: '14:45', title: 'เดินริมน้ำ / กาแฟแบบสั้นๆ',
+            why: 'เดินเล่นชมวิวโค้งแม่น้ำหวงผู่และพักจิบกาแฟแบบสั้นๆ ก่อนกลับโรงแรม (หรือเลือกแวะห้องกระจก 360° Temple of Light 光廷 ที่ North Bund ระหว่างทางกลับ รร.)',
+            food: { th: 'คาเฟ่ริมแม่น้ำ Lujiazui Binjiang', cn: '陆家嘴滨江 咖啡' } },
+          { node: 'hotel', start: '14:45', end: '16:00', title: 'กลับโรงแรม • รับกระเป๋า',
+            move: '🚐 DiDi ~25–30 นาทีกลับ รร. Yitel Collection',
+            why: 'รับกระเป๋าที่ฝากไว้ที่ล็อบบี้ จัดสัมภาระและเข้าห้องน้ำให้พร้อม เตรียมออกจากโรงแรมเวลา 16:00 น.' },
+          { node: 'pvg', start: '16:00', end: '18:00', title: 'ออกจากโรงแรมไปสนามบิน (เป้าหมาย 18:00 ถึงสนามบิน)',
+            move: '🚐 DiDi 6 ที่นั่ง / รถตู้ ~46 กม. • เผื่อเวลาเดินทาง 60–90 นาที',
+            why: 'ออกจากโรงแรมประมาณ 16:00 น. เป้าหมายถึงสนามบินผู่ตง Terminal 2 เวลา 18:00 น. มีเวลาเช็กอินและผ่าน ตม. สบายๆ 3 ชั่วโมงก่อนเครื่องออก' },
+          { node: 'pvg', start: '18:00', end: '21:00', title: 'เช็กอิน HO1357 • 21:00 เครื่องออกจากเซี่ยงไฮ้ → 00:45 ถึงกรุงเทพฯ',
+            move: '✈️ Juneyao Airlines HO1357 ออก 21:00 → ถึงสุวรรณภูมิ 00:45 (วันที่ 30 ต.ค.)',
+            why: 'เคาน์เตอร์เช็กอินปิด 20:00 น. • 21:00 น. เครื่องออกจากเซี่ยงไฮ้ ถึงกรุงเทพฯ 00:45 น. วันที่ 30 ต.ค. ตามตั๋ว' }
         ]
       }
     ];
@@ -759,7 +760,7 @@
     const KEY = {
       meet: Date.UTC(2026, 9, 25, 22 - 7, 45),   // Sun 25 Oct 22:45 Bangkok
       land: Date.UTC(2026, 9, 26, 6 - 8, 55),    // Mon 26 Oct 06:55 Shanghai
-      pickup: Date.UTC(2026, 9, 29, 17 - 8, 15), // Thu 29 Oct 17:15 Shanghai
+      pickup: Date.UTC(2026, 9, 29, 16 - 8, 0),  // Thu 29 Oct 16:00 Shanghai (depart hotel for airport)
       depart: Date.UTC(2026, 9, 29, 21 - 8, 0),  // Thu 29 Oct 21:00 Shanghai
       home: Date.UTC(2026, 9, 30, 0 - 7, 45)     // Fri 30 Oct 00:45 Bangkok
     };
@@ -788,7 +789,7 @@
       { cat: 'food', cn: '服务员，买单！可以用支付宝吗？', py: 'ฝูอู้หยวน, หม่ายตัน! เขออี่ โย่ง จือฟู่เป่า มะ?', th: 'เช็กบิลครับ จ่ายด้วย Alipay ได้ไหม?' },
       { cat: 'hotel', cn: '您好，我们要办理入住，预订了三间双床房', py: 'หนินห่าว, หว่อเมิน เย่า ป้านหลี่ รู่จู้, อวี้ติ้งเลอ ซานเจียน ซวงฉวงฝาง', th: 'ขอเช็กอิน จองห้องเตียงคู่ไว้ 3 ห้องครับ' },
       { cat: 'hotel', cn: '我们可以先把行李寄存在前台吗？', py: 'หว่อเมิน เขออี่ เซียน ป่า สิงหลี่ จี้ฉุน ไจ้ เฉียนไถ มะ?', th: 'ขอฝากกระเป๋าไว้ที่ล็อบบี้ก่อนได้ไหมครับ?' },
-      { cat: 'hotel', cn: '我们退房，行李可以寄存到下午五点吗？', py: 'หว่อเมิน ทุ่ยฝาง, สิงหลี่ เขออี่ จี้ฉุน เต้า เซี่ยอู่ อู่เตี่ยน มะ?', th: 'เช็กเอาต์ครับ ขอฝากกระเป๋าถึง 5 โมงเย็นได้ไหม?' },
+      { cat: 'hotel', cn: '我们退房，行李可以寄存到下午四点吗？', py: 'หว่อเมิน ทุ่ยฝาง, สิงหลี่ เขออี่ จี้ฉุน เต้า เซี่ยอู่ ซื่อเตี่ยน มะ?', th: 'เช็กเอาต์ครับ ขอฝากกระเป๋าถึงบ่าย 4 โมงได้ไหม?' },
       { cat: 'hotel', cn: '我们来取寄存的行李', py: 'หว่อเมิน ไหล ฉวี่ จี้ฉุนเตอะ สิงหลี่', th: 'มารับกระเป๋าที่ฝากไว้ครับ' },
       { cat: 'sos', cn: '请问洗手间在哪里？', py: 'ฉิ่งเวิ่น สี่โส่วเจียน ไจ้หน่าหลี่?', th: 'ห้องน้ำอยู่ที่ไหนครับ?' },
       { cat: 'sos', cn: '请问哪里可以借共享充电宝？', py: 'ฉิ่งเวิ่น หน่าหลี่ เขออี่ เจี้ย ก้งเสี่ยง ชงเตี้ยนเป่า?', th: 'เช่าพาวเวอร์แบงก์ได้ที่ไหนครับ?' },
@@ -910,26 +911,27 @@
       ['sim', 'ใส่ซิมไทยไว้ตลอดทริป', 'OTP ของ Alipay / WeChat / DiDi / บัตรธนาคาร ส่งมาทาง SMS'],
       ['pay', 'Alipay / WeChat: ผูกบัตร + ยืนยันพาสปอร์ตให้เสร็จ', 'บางครั้งรอยืนยันถึง ~24 ชม. • DiDi เรียกในแอป Alipay ได้'],
       ['arrival', 'กรอกบัตรขาเข้าจีนออนไลน์', 'แอป NIA 12367 หรือ mini program ใน Alipay / WeChat'],
-      ['passport', 'พกพาสปอร์ตตัวจริงทุกวัน', 'Disneyland (ตั๋วผูกพาสปอร์ต) • INS 18+ • Urban Planning จองด้วยพาสปอร์ต'],
+      ['passport', 'พกพาสปอร์ตตัวจริงทุกวัน', 'Disneyland (ตั๋วผูกพาสปอร์ต) • Shanghai Natural History Museum • INS 18+'],
       ['install', 'ติดตั้งแอปนี้ลงหน้าโฮม + กดดาวน์โหลด offline', 'ทำตอนต่อ Wi-Fi ที่ไทย (ปุ่มอยู่ด้านล่างหน้านี้)'],
       ['apps', 'โหลดแอป Amap (高德地图) + Shanghai Disney Resort', 'ผูกตั๋ว Disney ทั้ง 6 คน เพื่อกด Premier Access พร้อมกัน'],
       ['translate', 'โหลดภาษาจีน + ไทยแบบ offline ใน Google / Apple Translate', 'สำรองไว้ใช้ตอนเน็ตหลุด'],
       ['sound', 'ลองกด 🔊 ที่การ์ดคำพูด ว่ามีเสียงจีน', 'iPhone: ปิดโหมดเงียบ • Android: เช็กว่ามีเสียงภาษาจีนในเครื่อง'],
-      ['era', 'จองตั๋ว ERA 2 รอบ พ. 28 ต.ค. 19:30', 'วันจันทร์ไม่มีรอบแสดง'],
-      ['urban', 'จอง Urban Planning (พฤ. 29) ใน WeChat mini program', 'เข้าฟรีแต่ต้องจองด้วยพาสปอร์ต'],
+      ['natmus', 'จองคิว Shanghai Natural History Museum (จ. 26 ต.ค. รอบ 11:00)', 'จองด้วยพาสปอร์ตล่วงหน้าใน WeChat: 上海自然博物馆 หรือ Trip.com'],
+      ['vers', 'จองรอบ The VERS Immersive Center (จ. 26 ต.ค. รอบ 15:00)', 'ชั้น LG2 ห้อง LG216 ห้าง HKRI Taikoo Hui • เล่น VR พร้อมกัน 6 คน'],
+      ['renhe', 'จองโต๊ะร้าน Ren He Guan สาขา Xuhui (พ. 28 ต.ค. 18:30)', '407 Zhaojiabang Road (肇嘉浜路407号) • คิวยาวมากควรจองล่วงหน้า'],
       ['power', 'พาวเวอร์แบงก์ถือขึ้นเครื่องเท่านั้น', 'ไม่เกิน 100Wh • มีตรา 3C • ไม่ใช่รุ่นที่ถูกเรียกคืน']
     ];
 
     const BOOKINGS = [
       ['✅ ซื้อแล้ว', '🎢 Shanghai Disneyland • อ. 27 ต.ค.', 'ตั๋วผูกกับพาสปอร์ต — พกพาสปอร์ตตัวจริงทุกคน', 'disney'],
-      ['⚠️ ต้องจอง', '🎪 ERA 2 (时空之旅2) • พ. 28 ต.ค. 19:30', 'ลิงก์ Klook เป็นหน้าโชว์ ERA เดิม — เช็กชื่อรอบ "ERA 2" ก่อนจ่าย', 'era2'],
-      ['⚠️ ต้องจอง', '🖥️ Urban Planning Exhibition • พฤ. 29 ต.ค.', 'เข้าฟรี จองใน WeChat mini program ด้วยพาสปอร์ต • ปิดวันพุธ', 'urban'],
-      ['Day 1', '🚢 The Louis (LV)', 'อาจต้องจองคิวใน WeChat: 我的专属LV', 'louis'],
-      ['Day 1', '🏛️ Museum of Art Pudong (MAP)', 'เปิดทุกวัน 10:00–21:00 • เข้าครั้งสุดท้าย 20:00', 'map'],
-      ['Day 3', '💎 Power Station of Art — Bvlgari Kaleidos', 'ถึง 31 ต.ค. • เปิด อ.–อา.', 'psa'],
-      ['Day 3', '🛢️ TANK Shanghai', 'เปิด อ.–ศ. 12:00–18:00 • เข้าครั้งสุดท้าย 17:30', 'tank'],
-      ['Day 3', '🎛️ INS 新乐园', 'ดู line-up / ซื้อบัตรใน WeChat: INS新乐园 • 18+', 'ins'],
-      ['Day 4', '📸 Fotografiska Shanghai', 'ซื้อตั๋วเว็บตรง • เปิดทุกวัน 10:30–23:00', 'foto']
+      ['⚠️ ควรจอง', '🦕 Shanghai Natural History Museum • จ. 26 ต.ค. 11:00', 'เปิดวันจันทร์ (ปิดวันอังคาร) • จองด้วยพาสปอร์ตล่วงหน้า 7 วันใน WeChat / Trip.com', 'natmus'],
+      ['⚠️ ควรจอง', '🥽 The VERS Immersive Center (博新全宇宙) • จ. 26 ต.ค. 15:00', 'ชั้น LG2 ห้อง LG216 ห้าง HKRI Taikoo Hui • รอบละ 45 นาที', 'vers'],
+      ['⚠️ ควรจอง', '🥢 Ren He Guan (人和馆) สาขา Xuhui • พ. 28 ต.ค. 18:30', '407 Zhaojiabang Road • อาหารเซี่ยงไฮ้ 1 ดาวมิชลิน คิวยาวมาก', 'renhe'],
+      ['Day 1', '🚢 The Louis (LV) & Starbucks Reserve Roastery', 'หน้าห้าง HKRI Taikoo Hui • The Louis อาจต้องจองคิวใน WeChat: 我的专属LV', 'louis'],
+      ['Day 3', '🏛️ Long Museum West Bund / TANK Shanghai', 'โซน West Bund • เผื่อเวลาเดินทางระหว่างพิพิธภัณฑ์', 'longmus'],
+      ['Day 3', '🖥️ West Bund Museum (Prehistoric Planet & Computer Worlds)', 'เปิด 10:00–17:00 • ชั้น B1 Immersive & Gallery 3', 'westbund'],
+      ['Day 3', '🎛️ INS 新乐园 @ Fuxing Park', 'หลังอาหารดื่มต่อตามกำลัง • เช็ก line-up ใน WeChat: INS新乐园 • 18+', 'ins'],
+      ['Day 4', '🖼️ Museum of Art Pudong (MAP) • พฤ. 29 ต.ค. 10:00–13:00', 'เปิดทุกวัน 10:00–21:00 • Giorgio Morandi & Lanterns Light Riverside', 'map']
     ];
 
     // ================================================================
@@ -1322,7 +1324,7 @@
         <div class="pop rounded-3xl bg-[#D8392B] text-white p-[18px] space-y-3.5">
           <div class="space-y-1">
             <div class="t13 font-bold text-[#FFE1DC]">อย่าพลาด · อีก ${dur(KEY.pickup - t)}</div>
-            <div class="text-xl font-bold leading-snug">17:15 รับกระเป๋าที่ รร. → สนามบิน</div>
+            <div class="text-xl font-bold leading-snug">14:45–16:00 รับกระเป๋าที่ รร. → 16:00 ออกไปสนามบิน</div>
             <div class="text-sm text-[#FFE1DC]">HO1357 ออก 21:00 · เคาน์เตอร์เช็กอินปิด 20:00</div>
           </div>
           <button data-act="hotelcard" class="btn btn-white w-full" style="color:#B32A1C">${ic('bed', 20)}ป้ายกลับโรงแรม</button>
