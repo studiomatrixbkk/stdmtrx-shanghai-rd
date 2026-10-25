@@ -916,7 +916,7 @@
       ['install', 'ติดตั้งแอปนี้ลงหน้าโฮม + กดดาวน์โหลด offline', 'ทำตอนต่อ Wi-Fi ที่ไทย (ปุ่มอยู่ด้านล่างหน้านี้)'],
       ['apps', 'โหลดแอป Amap (高德地图) + Shanghai Disney Resort', 'ผูกตั๋ว Disney ทั้ง 6 คน เพื่อกด Premier Access พร้อมกัน'],
       ['translate', 'โหลดภาษาจีน + ไทยแบบ offline ใน Google / Apple Translate', 'สำรองไว้ใช้ตอนเน็ตหลุด'],
-      ['sound', 'ลองกด 🔊 ที่การ์ดคำพูด ว่ามีเสียงจีน', 'iPhone: ปิดโหมดเงียบ • Android: เช็กว่ามีเสียงภาษาจีนในเครื่อง'],
+      ['sound', 'ลองกดปุ่มเสียงที่การ์ดคำพูด ว่ามีเสียงจีน', 'iPhone: ปิดโหมดเงียบ • Android: เช็กว่ามีเสียงภาษาจีนในเครื่อง'],
       ['natmus', 'จองคิว Shanghai Natural History Museum (จ. 26 ต.ค. รอบ 11:00)', 'จองด้วยพาสปอร์ตล่วงหน้าใน WeChat: 上海自然博物馆 หรือ Trip.com'],
       ['vers', 'จองรอบ The VERS Immersive Center (จ. 26 ต.ค. รอบ 15:00)', 'ชั้น LG2 ห้อง LG216 ห้าง HKRI Taikoo Hui • เล่น VR พร้อมกัน 6 คน'],
       ['renhe', 'จองโต๊ะร้าน Ren He Guan สาขา Xuhui (พ. 28 ต.ค. 18:30)', '407 Zhaojiabang Road (肇嘉浜路407号) • คิวยาวมากควรจองล่วงหน้า'],
@@ -939,7 +939,9 @@
     // HELPERS
     // ================================================================
     const $ = id => document.getElementById(id);
-    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    // Emoji in trip data are dropped on screen (line icons only); arrows like ➜ and ✓ stay
+    const EMO_RE = /\s?[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{2712}\u{2715}-\u{2793}\u{23E9}-\u{23FA}\u{2B50}]\u{FE0F}?/gu;
+    const esc = s => String(s ?? '').replace(EMO_RE, '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     // Line icons (24×24, stroke = currentColor). Static markup uses <i data-ic="name" data-s="20">, filled at boot.
     const IC = {
@@ -982,12 +984,36 @@
       zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>',
       moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
       ext: '<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
-      alert: '<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>'
+      alert: '<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
+      museum: '<path d="M3 21h18"/><path d="M4 18h16"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 3 21 8H3l9-5z"/>',
+      castle: '<path d="M4 21V10h16v11z"/><path d="M4 10V6h3v2h3V6h4v2h3V6h3v4"/><path d="M10 21v-4a2 2 0 0 1 4 0v4"/>',
+      ship: '<path d="M3 15h18l-2.5 4.5a2 2 0 0 1-1.7 1H7.2a2 2 0 0 1-1.7-1z"/><path d="M5 15V9h14v6"/><path d="M9 9V5h6v4"/><path d="M12 3v2"/>',
+      vr: '<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-4l-3-3-3 3H5a2 2 0 0 1-2-2z"/>',
+      glasses: '<circle cx="6.5" cy="14.5" r="3.5"/><circle cx="17.5" cy="14.5" r="3.5"/><path d="M10 14.5a2 2 0 0 1 4 0"/><path d="M3 14.5 5 7h2"/><path d="M21 14.5 19 7h-2"/>',
+      sunset: '<path d="M3 18h18"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M12 4v4"/><path d="m5.6 9.6 1.4 1.4"/><path d="m18.4 9.6-1.4 1.4"/><path d="M5 21h14"/>',
+      waves: '<path d="M2 8c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M2 13c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>',
+      monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/>',
+      coffee: '<path d="M4 9h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3"/><path d="M12 3v3"/>',
+      music: '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+      sparkle: '<path d="M12 3l2 5.5L19.5 10.5 14 12.5 12 18l-2-5.5L4.5 10.5 10 8.5z"/>',
+      tank: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+      leaf: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14z"/><path d="M5 19 13 11"/>',
+      ticket: '<path d="M3 8a2 2 0 0 0 0 4v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0 0-4V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/><path d="M14 4v2"/><path d="M14 11v2"/><path d="M14 18v-1"/>',
+      city: '<path d="M3 21h18"/><path d="M5 21V8l5-3v16"/><path d="M10 21V10h5v11"/><path d="M15 21V6l4 2v13"/>'
     };
     const ic = (name, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0">${IC[name] || ''}</svg>`;
     const fillIcons = root => root.querySelectorAll('i[data-ic]').forEach(el => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 20); });
     // Some data strings start with an emoji; the UI drops it and shows a line icon instead
     const noEmo = s => String(s ?? '').replace(/^[^\p{L}\p{N}"(]+/u, '');
+    const PLACE_IC = {
+      '✈': 'plane', '🏨': 'bed', '🦕': 'leaf', '🚢': 'ship', '🥽': 'vr', '🌉': 'waves', '🌊': 'waves',
+      '🥟': 'bowl', '🥢': 'bowl', '🍜': 'bowl', '🍽': 'food', '☕': 'coffee', '🧸': 'bag', '🛍': 'bag',
+      '🎢': 'castle', '🏰': 'castle', '🛢': 'tank', '🌇': 'sunset', '🌆': 'city', '🌅': 'sunset',
+      '🖥': 'monitor', '🦾': 'glasses', '🕶': 'glasses', '🎛': 'music', '🎵': 'music', '🖼': 'image',
+      '🏛': 'museum', '🎨': 'image', '📸': 'camera', '✨': 'sparkle', '🎪': 'ticket', '🎭': 'ticket',
+      '🎟': 'ticket', '🌳': 'leaf', '🏙': 'city'
+    };
+    const placeIc = n => n.ic || PLACE_IC[[...String(n.icon || '')][0]] || 'pin';
     const moveIcon = m => /^🚶/.test(m) ? 'route' : /^✈/.test(m) ? 'plane' : 'car';
     const store = {
       get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -1036,7 +1062,7 @@
         try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
         ta.remove();
       }
-      if (!silent || !ok) toast(ok ? `✅ คัดลอกแล้ว: ${txt}` : '⚠️ คัดลอกไม่ได้ — กดค้างที่ตัวอักษรจีนเพื่อคัดลอกเอง', ok, ok ? 2200 : 4000);
+      if (!silent || !ok) toast(ok ? `คัดลอกแล้ว: ${txt}` : 'คัดลอกไม่ได้ — กดค้างที่ตัวอักษรจีนเพื่อคัดลอกเอง', ok, ok ? 2200 : 4000);
       return ok;
     }
 
@@ -1149,15 +1175,15 @@
     }
     function noSound(reason) {
       let msg;
-      if (IS_IOS) msg = '🔇 ไม่ได้ยินเสียง? ปิดโหมดเงียบ (สวิตช์ข้างเครื่อง) แล้วเพิ่มเสียง • หรือโชว์หน้าจอให้อ่านแทน';
-      else if (voiceCount && !zhVoice) msg = '🔇 เครื่องนี้ยังไม่มีเสียงภาษาจีน: ตั้งค่า ➜ Text-to-speech ➜ ติดตั้งภาษาจีน • ตอนนี้โชว์หน้าจอให้อ่านแทนได้';
-      else msg = '🔇 พูดไม่ได้ตอนนี้ — เพิ่มเสียงสื่อ (media) หรือโชว์หน้าจอให้อ่านแทน';
+      if (IS_IOS) msg = 'ไม่ได้ยินเสียง? ปิดโหมดเงียบ (สวิตช์ข้างเครื่อง) แล้วเพิ่มเสียง • หรือโชว์หน้าจอให้อ่านแทน';
+      else if (voiceCount && !zhVoice) msg = 'เครื่องนี้ยังไม่มีเสียงภาษาจีน: ตั้งค่า ➜ Text-to-speech ➜ ติดตั้งภาษาจีน • ตอนนี้โชว์หน้าจอให้อ่านแทนได้';
+      else msg = 'พูดไม่ได้ตอนนี้ — เพิ่มเสียงสื่อ (media) หรือโชว์หน้าจอให้อ่านแทน';
       toast(msg, false, 6500);
     }
     function speak(text) {
       text = (text || '').trim();
       if (!text) { toast('ยังไม่มีข้อความภาษาจีนให้พูด', false); return; }
-      if (!HAS_TTS) { toast('⚠️ เบราว์เซอร์นี้ไม่มีเสียงพูด — เปิดใน Safari / Chrome หรือโชว์หน้าจอให้อ่านแทน', false, 5000); return; }
+      if (!HAS_TTS) { toast('เบราว์เซอร์นี้ไม่มีเสียงพูด — เปิดใน Safari / Chrome หรือโชว์หน้าจอให้อ่านแทน', false, 5000); return; }
       if (!zhVoice) pickVoice();
       const busy = speechSynthesis.speaking || speechSynthesis.pending;
       if (busy) speechSynthesis.cancel();
@@ -1169,7 +1195,7 @@
         let started = false;
         utter.onstart = () => {
           started = true;
-          if (IS_IOS && !iosHintShown) { iosHintShown = true; toast('🔊 กำลังพูด… ถ้าไม่ได้ยิน ให้ปิดโหมดเงียบที่สวิตช์ข้างเครื่อง', true, 3500); }
+          if (IS_IOS && !iosHintShown) { iosHintShown = true; toast('กำลังพูด… ถ้าไม่ได้ยิน ให้ปิดโหมดเงียบที่สวิตช์ข้างเครื่อง', true, 3500); }
         };
         utter.onerror = e => { if (!['interrupted', 'canceled'].includes(e.error)) noSound(e.error); };
         speechSynthesis.speak(utter);
@@ -1241,7 +1267,7 @@
               ${opts.note ? `<span class="t13 font-semibold text-mute">${opts.note}</span>` : ''}
             </div>` : ''}
           <div class="flex gap-3.5 items-start">
-            <span class="sticker" style="background:${isBase(s.node) ? '#fff' : day.pop}" aria-hidden="true">${n.icon}${opts.num ? `<b>${s.si + 1}</b>` : ''}</span>
+            <span class="sticker" style="background:${isBase(s.node) ? '#fff' : day.pop}" aria-hidden="true">${ic(placeIc(n), 22)}${opts.num ? `<b>${s.si + 1}</b>` : ''}</span>
             <div class="min-w-0 flex-1 space-y-0.5">
               ${opts.kicker ? '' : `<div class="flex items-center gap-2"><span class="t13 font-bold tnum" style="color:${day.color}">${hm(s.start)}–${hm(s.end)}</span>${opts.live ? `<span class="tl-now" style="color:${day.color};background:${day.tint}">ตอนนี้</span>` : ''}</div>`}
               <h3 class="t17 font-bold leading-snug">${esc(s.title)}</h3>
@@ -1265,7 +1291,7 @@
       const p = Math.max(0, Math.min(100, Math.round((t - s.t0) / (s.t1 - s.t0) * 100)));
       return `
         <div class="pop relative p-5 pt-4 space-y-3.5" style="background:${d.pop}">
-          <span class="sticker bob absolute -top-4 right-4 w-[60px] h-[60px] text-[32px] bg-white" aria-hidden="true">${n.icon}</span>
+          <span class="sticker bob absolute -top-4 right-4 w-[60px] h-[60px] bg-white" aria-hidden="true">${ic(placeIc(n), 30)}</span>
           <span class="pill-white"><span class="dot pulse bg-[#D8392B]"></span>ตอนนี้ · ${hm(s.start)}–${hm(s.end)}</span>
           <div class="space-y-1">
             <h2 class="t26 font-bold">${esc(s.title)}</h2>
@@ -1315,7 +1341,7 @@
       <div class="grid grid-cols-2 gap-2.5">${DAYS.map((d, i) => `
         <button data-act="openday" data-di="${i}" class="pop rounded-[20px] p-3.5 text-left flex flex-col gap-1.5 min-h-[96px]" style="background:${d.pop}">
           <span class="text-xs font-bold">DAY ${i + 1} · ${d.dow} ${+d.date.slice(8)}</span>
-          <span class="text-xl leading-none tracking-[2px]" aria-hidden="true">${[...new Set(d.stops.map(s => NODES[s.node].icon))].slice(0, 6).join('')}</span>
+          <span class="flex gap-1.5" aria-hidden="true">${[...new Set(d.stops.map(s => placeIc(NODES[s.node])))].slice(0, 6).map(k => ic(k, 18)).join('')}</span>
           <span class="t15 font-bold leading-snug">${esc(d.title)}</span>
         </button>`).join('')}
       </div>`;
@@ -1444,11 +1470,11 @@
       $('clk-main').textContent = thai ? thClock(t) : shClock(t);
       $('clk-sub').textContent = thai ? `เวลาไทย · จีน ${shClock(t)}` : `เซี่ยงไฮ้ · ไทย ${thClock(t)}`;
       const h = +(thai ? thClock(t) : shClock(t)).slice(0, 2);
-      $('hdr-greet').textContent = t < KEY.meet ? '🧳 เตรียมกระเป๋าให้พร้อม!'
-        : t >= KEY.depart ? '✈️ กลับบ้านปลอดภัยนะทุกคน'
-        : h >= 5 && h < 11 ? '🌅 อรุณสวัสดิ์! พร้อมลุยยัง'
-        : h >= 11 && h < 17 ? '☀️ บ่ายนี้ลุยต่อ!'
-        : h >= 17 && h < 22 ? '🌆 เย็นนี้สนุกแน่' : '🌙 ดึกแล้ว พักผ่อนด้วยนะ';
+      $('hdr-greet').textContent = t < KEY.meet ? 'เตรียมกระเป๋าให้พร้อม!'
+        : t >= KEY.depart ? 'กลับบ้านปลอดภัยนะทุกคน'
+        : h >= 5 && h < 11 ? 'อรุณสวัสดิ์! พร้อมลุยยัง'
+        : h >= 11 && h < 17 ? 'บ่ายนี้ลุยต่อ!'
+        : h >= 17 && h < 22 ? 'เย็นนี้สนุกแน่' : 'ดึกแล้ว พักผ่อนด้วยนะ';
     }
 
     // ================================================================
@@ -1552,7 +1578,7 @@
           <div class="card overflow-hidden row-div">${items.map((s, i) => {
             const n = NODES[s.node];
             return `<button data-act="place" data-node="${s.node}" class="w-full grid grid-cols-[40px_minmax(0,1fr)_20px] gap-3 items-center px-3.5 py-3 min-h-[68px] text-left">
-              <span class="sticker w-10 h-10 text-xl" style="background:${d.pop}" aria-hidden="true">${n.icon}</span>
+              <span class="sticker w-10 h-10" style="background:${d.pop}" aria-hidden="true">${ic(placeIc(n), 20)}</span>
               <span class="min-w-0"><span class="zh block t17 font-bold leading-snug">${esc(n.cn)}</span><span class="block t13 text-mute">${esc(n.name)}</span></span>
               <span class="text-mute">${ic('chev', 20)}</span></button>`;
           }).join('')}</div></section>`;
@@ -1606,15 +1632,15 @@
       clearTimeout(debounce);
       if (!text) { setBadge('รอข้อความจีน', 'idle'); return; }
       if (!/[一-龥]/.test(text)) { setBadge('ยังไม่พบตัวอักษรจีน', 'idle'); return; }
-      setBadge('⚡ กำลังแปล...', 'busy');
+      setBadge('กำลังแปล...', 'busy');
       debounce = setTimeout(async () => {
         const r = await mtTranslate(text, 'zh-CN|th');
         if (scanCn !== text) return;
         if (r) {
           $('scan-th').textContent = r + (hits.length ? `  (${hits.map(h => h.th).join(', ')})` : '');
-          setBadge('✅ แปลแล้ว', 'ok');
+          setBadge('แปลแล้ว', 'ok');
         } else {
-          setBadge(hits.length ? '📴 แปลออนไลน์ไม่ได้ — แสดงคำจากโพย' : '📴 แปลออนไลน์ไม่ได้ตอนนี้', 'bad');
+          setBadge(hits.length ? 'แปลออนไลน์ไม่ได้ — แสดงคำจากโพย' : 'แปลออนไลน์ไม่ได้ตอนนี้', 'bad');
         }
       }, 450);
     }
@@ -1638,15 +1664,15 @@
       const text = ($('trans-input').value || '').trim();
       if (!text) { toast('พิมพ์หรือพูดข้อความก่อนกดแปล', false); return; }
       const zhIn = /[一-龥]/.test(text);
-      $('trans-status').textContent = '⚡ กำลังแปล...';
+      $('trans-status').textContent = 'กำลังแปล...';
       $('trans-main').textContent = ''; $('trans-sub').textContent = ''; $('trans-actions').hidden = true; trans = null;
       const out = await mtTranslate(text, zhIn ? 'zh-CN|th' : 'th|zh-CN');
       if (!out) {
-        $('trans-status').textContent = '📴 แปลออนไลน์ไม่ได้ตอนนี้ — ใช้ประโยคสำเร็จรูปในแท็บป้ายจีน หรือแอปแปลภาษาแบบ offline';
+        $('trans-status').textContent = 'แปลออนไลน์ไม่ได้ตอนนี้ — ใช้ประโยคสำเร็จรูปในแท็บป้ายจีน หรือแอปแปลภาษาแบบ offline';
         return;
       }
       trans = zhIn ? { cn: text, th: out } : { cn: out, th: text };
-      $('trans-status').textContent = '✅ แปลแล้ว';
+      $('trans-status').textContent = 'แปลแล้ว';
       $('trans-main').textContent = out;
       $('trans-main').className = zhIn ? 'text-2xl font-bold break-words' : 'zh text-3xl font-bold break-words';
       $('trans-sub').textContent = zhIn ? `ภาษาจีน: ${text}` : `ภาษาไทย: ${text}`;
@@ -1675,7 +1701,7 @@
       }
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) {
-        toast(IS_IOS ? 'ในแอปบนหน้าโฮมของ iPhone ใช้ไมค์นี้ไม่ได้ — แตะช่องข้อความแล้วกด 🎙️ บนแป้นพิมพ์แทน' : 'เบราว์เซอร์นี้ไม่มีระบบฟังเสียง — ใช้ 🎙️ บนแป้นพิมพ์แทน', false, 5000);
+        toast(IS_IOS ? 'ในแอปบนหน้าโฮมของ iPhone ใช้ไมค์นี้ไม่ได้ — แตะช่องข้อความแล้วกด ไมค์บนแป้นพิมพ์แทน' : 'เบราว์เซอร์นี้ไม่มีระบบฟังเสียง — ใช้ไมค์บนแป้นพิมพ์แทน', false, 5000);
         $('trans-input').focus();
         return;
       }
@@ -1684,18 +1710,18 @@
       r.lang = lang; r.interimResults = true; r.maxAlternatives = 1;
       let heard = '';
       setMicUI(lang);
-      $('trans-status').textContent = lang === 'th-TH' ? '🎙️ กำลังฟังภาษาไทย... พูดได้เลย' : '🎙️ 请说话 (กำลังฟังภาษาจีน)...';
+      $('trans-status').textContent = lang === 'th-TH' ? 'กำลังฟังภาษาไทย... พูดได้เลย' : '请说话 (กำลังฟังภาษาจีน)...';
       r.onresult = e => {
         heard = Array.from(e.results).map(r => r[0].transcript).join('');
         $('trans-input').value = heard;
       };
       r.onerror = e => {
         const why = {
-          'not-allowed': '⚠️ ยังไม่ได้อนุญาตไมค์ — กดอนุญาตไมโครโฟนในเบราว์เซอร์ หรือใช้ 🎙️ บนแป้นพิมพ์',
-          'service-not-allowed': '⚠️ เครื่องนี้ไม่อนุญาตระบบฟังเสียง — ใช้ 🎙️ บนแป้นพิมพ์แทน',
-          'no-speech': '🤫 ไม่ได้ยินเสียง — แตะแล้วพูดใกล้ๆ อีกครั้ง',
-          'audio-capture': '⚠️ ไม่พบไมโครโฟน',
-          'network': '📴 เน็ตช้า ระบบฟังเสียงใช้ไม่ได้ — ใช้ 🎙️ บนแป้นพิมพ์แทน (ถ้าต่อ Wi-Fi จีนอยู่ให้ปิด Wi-Fi)'
+          'not-allowed': 'ยังไม่ได้อนุญาตไมค์ — กดอนุญาตไมโครโฟนในเบราว์เซอร์ หรือใช้ไมค์บนแป้นพิมพ์',
+          'service-not-allowed': 'เครื่องนี้ไม่อนุญาตระบบฟังเสียง — ใช้ไมค์บนแป้นพิมพ์แทน',
+          'no-speech': 'ไม่ได้ยินเสียง — แตะแล้วพูดใกล้ๆ อีกครั้ง',
+          'audio-capture': 'ไม่พบไมโครโฟน',
+          'network': 'เน็ตช้า ระบบฟังเสียงใช้ไม่ได้ — ใช้ไมค์บนแป้นพิมพ์แทน (ถ้าต่อ Wi-Fi จีนอยู่ให้ปิด Wi-Fi)'
         }[e.error];
         if (why) $('trans-status').textContent = why;
       };
@@ -1703,7 +1729,7 @@
         if (rec === r) { rec = null; recLang = null; setMicUI(null); }
         if (!r.aborted && heard.trim()) runTranslate(lang === 'th-TH');
       };
-      try { r.start(); } catch (e) { rec = null; recLang = null; setMicUI(null); $('trans-status').textContent = '⚠️ เปิดไมค์ไม่ได้ — ใช้ 🎙️ บนแป้นพิมพ์แทน'; }
+      try { r.start(); } catch (e) { rec = null; recLang = null; setMicUI(null); $('trans-status').textContent = 'เปิดไมค์ไม่ได้ — ใช้ไมค์บนแป้นพิมพ์แทน'; }
     }
 
     function showTrMode(v) {
@@ -1735,11 +1761,11 @@
       if (ocrWorker) return ocrWorker;
       if (!ocrLoading) {
         ocrLoading = (async () => {
-          setBadge('⏳ กำลังเตรียมตัวสแกนภาษาจีน (ครั้งแรก ~3–4 MB)', 'busy');
+          setBadge('กำลังเตรียมตัวสแกนภาษาจีน (ครั้งแรก ~3–4 MB)', 'busy');
           if (typeof Tesseract === 'undefined') await loadScript('vendor/tesseract/tesseract.min.js');
           const base = new URL('vendor/tesseract/', location.href).href;
           ocrWorker = await Tesseract.createWorker('chi_sim', 1, { workerPath: base + 'worker.min.js', corePath: base, langPath: base + 'lang', workerBlobURL: false });
-          setBadge('🟢 ตัวสแกนพร้อม', 'ok');
+          setBadge('ตัวสแกนพร้อม', 'ok');
           return ocrWorker;
         })().catch(e => { ocrLoading = null; throw e; });
       }
@@ -1750,19 +1776,19 @@
       ocrBusy = true;
       try {
         const w = await getOcr();
-        setBadge('🔍 กำลังอ่านตัวอักษรจีน...', 'busy');
+        setBadge('กำลังอ่านตัวอักษรจีน...', 'busy');
         const { data } = await w.recognize(canvas);
         const zh = ((data?.text || '').match(/[一-龥0-9，。！？、]+/g) || []).join('').trim();
         if (zh) { $('live-input').value = zh; handleScanText(zh); }
         else setBadge('ไม่พบตัวจีนชัดๆ — ลองเล็งใกล้ขึ้น หรือใช้สแกนคีย์บอร์ด', 'bad');
       } catch (e) {
-        setBadge('⚠️ ตัวสแกนโหลดไม่ได้ — ใช้สแกนผ่านคีย์บอร์ดด้านบนแทน', 'bad');
+        setBadge('ตัวสแกนโหลดไม่ได้ — ใช้สแกนผ่านคีย์บอร์ดด้านบนแทน', 'bad');
       } finally { ocrBusy = false; }
     }
     async function startCamera() {
       try {
         camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-      } catch (e) { toast('เปิดกล้องไม่ได้ — อนุญาตสิทธิ์กล้อง หรือใช้ปุ่ม 🖼️ ถ่าย / เลือกรูป', false, 4000); return; }
+      } catch (e) { toast('เปิดกล้องไม่ได้ — อนุญาตสิทธิ์กล้อง หรือใช้ปุ่มถ่าย / เลือกรูป', false, 4000); return; }
       const v = $('cam-video');
       v.srcObject = camStream; v.hidden = false;
       $('cam-overlay').hidden = false; $('cam-placeholder').hidden = true; $('cam-preview').hidden = true;
@@ -1873,7 +1899,7 @@
     async function downloadOffline() {
       const btn = $('btn-offline'), st = $('offline-status');
       if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-        st.textContent = '⚠️ ระบบ offline ยังไม่พร้อม — รีเฟรชหน้านี้ 1 ครั้งแล้วกดอีกที';
+        st.textContent = 'ระบบ offline ยังไม่พร้อม — รีเฟรชหน้านี้ 1 ครั้งแล้วกดอีกที';
         return;
       }
       const files = ['vendor/tesseract/tesseract.min.js', 'vendor/tesseract/worker.min.js', 'vendor/tesseract/tesseract-core-simd-lstm.wasm.js', 'vendor/tesseract/tesseract-core-lstm.wasm.js', 'vendor/tesseract/lang/chi_sim.traineddata.gz'];
@@ -1891,9 +1917,9 @@
         }
       }));
       btn.disabled = false;
-      if (fail > jobs.length * 0.2) { st.textContent = `⚠️ ดาวน์โหลดได้ ${done}/${jobs.length} — ลองกดอีกครั้งตอนเน็ตดีขึ้น`; return; }
+      if (fail > jobs.length * 0.2) { st.textContent = `ดาวน์โหลดได้ ${done}/${jobs.length} — ลองกดอีกครั้งตอนเน็ตดีขึ้น`; return; }
       store.set('mtrx-offline', Date.now());
-      st.textContent = `✅ พร้อมใช้ offline แล้ว (แผนที่ ${tiles.length} แผ่น + ตัวสแกนภาษาจีน)`;
+      st.textContent = `พร้อมใช้ offline แล้ว (แผนที่ ${tiles.length} แผ่น + ตัวสแกนภาษาจีน)`;
     }
 
     // ================================================================
@@ -1943,7 +1969,7 @@
         case 'openday': activeDay = +el.dataset.di; activeStop = -1; showTab('trip'); renderTrip(true); break;
         case 'phrase': phraseCard(el.dataset.key ? PHRASES.find(p => p.key === el.dataset.key) : PHRASES[+el.dataset.i]); break;
         case 'dcat': dictCat = el.dataset.cat; renderDict(); break;
-        case 'dict': { const it = DICT[+el.dataset.i]; openCard({ label: '🔍 คำศัพท์', cn: it.cn, py: it.py, th: it.th }); speak(it.cn.split(' / ')[0]); break; }
+        case 'dict': { const it = DICT[+el.dataset.i]; openCard({ label: 'คำศัพท์', cn: it.cn, py: it.py, th: it.th }); speak(it.cn.split(' / ')[0]); break; }
         case 'closecard': closeCard(); break;
         case 'speakcard': if (cardState) speak([cardState.cn, cardState.addr].filter(Boolean).join('，')); break;
         case 'copycard': if (cardState) copyText([cardState.addr, cardState.cn].filter(Boolean).join(' ')); break;
@@ -1957,18 +1983,18 @@
         case 'translate': unlockSpeech(); runTranslate(true); break;
         case 'mic': unlockSpeech(); startMic(el.dataset.lang); break;
         case 'speaktrans': if (trans) speak(trans.cn); break;
-        case 'cardtrans': if (trans) { openCard({ label: '🗣️ คำแปล', cn: trans.cn, th: trans.th }); speak(trans.cn); } break;
+        case 'cardtrans': if (trans) { openCard({ label: 'คำแปล', cn: trans.cn, th: trans.th }); speak(trans.cn); } break;
         case 'copytrans': if (trans) copyText(trans.cn); break;
         case 'offline': downloadOffline(); break;
         case 'reload': location.reload(); break;
-        case 'bigtext': { const on = !document.documentElement.classList.contains('big'); applyBig(on); store.set('mtrx-big', on); toast(on ? '🔠 ตัวอักษรใหญ่: เปิด (กด Aa อีกครั้งเพื่อปิด)' : '🔡 ตัวอักษรใหญ่: ปิด'); break; }
+        case 'bigtext': { const on = !document.documentElement.classList.contains('big'); applyBig(on); store.set('mtrx-big', on); toast(on ? 'ตัวอักษรใหญ่: เปิด (กด Aa อีกครั้งเพื่อปิด)' : 'ตัวอักษรใหญ่: ปิด'); break; }
       }
     });
     document.addEventListener('change', e => {
       const k = e.target.dataset?.chk;
       if (k) {
         const st = store.get('mtrx-chk', {}); st[k] = e.target.checked; store.set('mtrx-chk', st); renderChecklist();
-        if (e.target.checked && CHECKLIST.every(([c]) => st[c])) { confetti(); toast('🎉 ครบทุกข้อแล้ว พร้อมบิน!'); }
+        if (e.target.checked && CHECKLIST.every(([c]) => st[c])) { confetti(); toast('ครบทุกข้อแล้ว พร้อมบิน!'); }
       }
       if (e.target.id === 'ocr-file') onImage(e);
     });
@@ -2002,7 +2028,7 @@
       // Warm up the other tabs and the map library once the first screen is on show
       const idle = window.requestIdleCallback || (fn => setTimeout(fn, 300));
       idle(() => { TABS.forEach(ensureRendered); loadLeaflet().catch(() => {}); });
-      if (store.get('mtrx-offline', null)) $('offline-status').textContent = '✅ ดาวน์โหลดไว้แล้ว — กดอีกครั้งเพื่ออัปเดตได้';
+      if (store.get('mtrx-offline', null)) $('offline-status').textContent = 'ดาวน์โหลดไว้แล้ว — กดอีกครั้งเพื่ออัปเดตได้';
       if (/\bLine\//i.test(navigator.userAgent)) $('line-banner').hidden = false;
       setInterval(() => { if (!document.hidden && curTab === 'today' && $('card-modal').hidden) renderToday(); }, 30000);
       document.addEventListener('visibilitychange', () => { if (!document.hidden && curTab === 'today') renderToday(); });
